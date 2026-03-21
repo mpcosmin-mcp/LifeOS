@@ -11,11 +11,11 @@ import InputPage from './pages/InputPage';
 
 type AppPage = Page | 'input';
 
-const NAV_ITEMS: { key: AppPage; label: string; icon: typeof Activity }[] = [
-  { key: 'overview', label: 'Overview', icon: LayoutDashboard },
+const NAV: { key: AppPage; label: string; icon: typeof Activity }[] = [
+  { key: 'overview', label: 'Home', icon: LayoutDashboard },
   { key: 'health', label: 'Health', icon: Activity },
-  { key: 'finance', label: 'Finance', icon: Wallet },
-  { key: 'calendar', label: 'Calendar', icon: Calendar },
+  { key: 'finance', label: 'Money', icon: Wallet },
+  { key: 'calendar', label: 'Events', icon: Calendar },
   { key: 'psychology', label: 'Mind', icon: Brain },
   { key: 'input', label: 'Log', icon: Plus },
 ];
@@ -25,24 +25,20 @@ export default function App() {
   const [data, setData] = useState<LifeOSData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadData = () => {
-    fetchLifeOSData().then(d => { setData(d); setLoading(false); });
-  };
-
+  const loadData = () => { fetchLifeOSData().then(d => { setData(d); setLoading(false); }); };
   useEffect(() => { loadData(); }, []);
 
-  const navigate = (p: AppPage) => {
+  const go = (p: AppPage) => {
     if (page === 'input' && p !== 'input') loadData();
     setPage(p);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (loading || !data) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center anim-fade">
-          <div className="text-4xl mb-4 float">🧬</div>
-          <div className="font-mono-data text-sm text-[var(--text2)]">Loading Life OS...</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 40, marginBottom: 16 }} className="anim-fade">🧬</div>
+          <div className="font-mono-data" style={{ fontSize: 11, color: 'var(--text3)' }}>Loading Life OS...</div>
         </div>
       </div>
     );
@@ -50,41 +46,39 @@ export default function App() {
 
   return (
     <div className="content-safe">
-      {/* Desktop Header */}
-      <header className="hidden md:flex items-center justify-between px-6 py-4 border-b border-[var(--glass-border)]">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('overview')}>
-          <span className="text-2xl">🧬</span>
-          <span className="font-black text-lg tracking-tight">LIFE OS</span>
+      {/* ── Desktop Header ── */}
+      <header style={{ display: 'none', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid var(--glass-border)' }} className="md:!flex">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => go('overview')}>
+          <span style={{ fontSize: 22 }}>🧬</span>
+          <span className="font-display" style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.02em' }}>LIFE OS</span>
         </div>
         <div className="tab-bar">
-          {NAV_ITEMS.map(n => (
-            <button key={n.key}
-              className={`tab ${page === n.key ? 'on' : ''} ${n.key === 'input' ? '!text-[var(--neon-green)]' : ''}`}
-              onClick={() => navigate(n.key)}>
-              <n.icon size={14} style={{ display: 'inline', marginRight: 4, verticalAlign: -2 }} />
+          {NAV.map(n => (
+            <button key={n.key} className={`tab ${page === n.key ? 'on' : ''}`} onClick={() => go(n.key)}>
+              <n.icon size={13} style={{ display: 'inline', marginRight: 4, verticalAlign: -2 }} />
               {n.label}
             </button>
           ))}
         </div>
-        <div className="font-mono-data text-xs text-[var(--text3)]">
+        <div className="font-mono-data" style={{ fontSize: 11, color: 'var(--text3)' }}>
           {new Date().toLocaleDateString('ro-RO', { weekday: 'short', day: 'numeric', month: 'short' })}
         </div>
       </header>
 
-      {/* Mobile Header */}
-      <header className="md:hidden flex items-center justify-between px-3 py-3">
-        <div className="flex items-center gap-2" onClick={() => navigate('overview')}>
-          <span className="text-xl">🧬</span>
-          <span className="font-black text-sm tracking-tight">LIFE OS</span>
+      {/* ── Mobile Header ── */}
+      <header className="md:hidden" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} onClick={() => go('overview')}>
+          <span style={{ fontSize: 18 }}>🧬</span>
+          <span className="font-display" style={{ fontWeight: 700, fontSize: 13, letterSpacing: '-0.02em' }}>LIFE OS</span>
         </div>
-        <div className="font-mono-data text-xs text-[var(--text3)]">
+        <div className="font-mono-data" style={{ fontSize: 10, color: 'var(--text3)' }}>
           {new Date().toLocaleDateString('ro-RO', { weekday: 'short', day: 'numeric', month: 'short' })}
         </div>
       </header>
 
-      {/* Page Content — 12px padding mobile, 24px desktop */}
-      <main className="max-w-7xl mx-auto w-full flex-1 overflow-x-hidden" style={{ padding: '12px' }}>
-        {page === 'overview' && <OverviewPage data={data} onNavigate={navigate} />}
+      {/* ── Content ── */}
+      <main style={{ padding: '0 12px 12px', maxWidth: 1280, margin: '0 auto', width: '100%', flex: 1, overflowX: 'hidden' }}>
+        {page === 'overview' && <OverviewPage data={data} onNavigate={go} />}
         {page === 'health' && <HealthPage data={data} />}
         {page === 'finance' && <FinancePage data={data} />}
         {page === 'calendar' && <CalendarPage data={data} />}
@@ -92,21 +86,20 @@ export default function App() {
         {page === 'input' && <InputPage />}
       </main>
 
-      {/* Mobile Bottom Nav — 56px + safe area */}
+      {/* ── Mobile Bottom Nav ── */}
       <nav className="mob-nav">
-        {NAV_ITEMS.map(n => {
+        {NAV.map(n => {
           const active = page === n.key;
-          const color = active
-            ? (n.key === 'input' ? 'var(--neon-green)' : 'var(--neon-blue)')
-            : 'var(--text3)';
           return (
-            <button key={n.key}
-              onClick={() => navigate(n.key)}
-              className="mob-nav-item relative"
-              style={{ color }}>
-              <n.icon size={20} strokeWidth={active ? 2.5 : 1.5} />
-              <span className="text-[9px] font-bold leading-none">{n.label}</span>
-              {active && <div className="nav-dot" style={{ background: color }} />}
+            <button key={n.key} onClick={() => go(n.key)}
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                padding: '4px 8px', minWidth: 44, background: 'none', border: 'none', cursor: 'pointer',
+                color: active ? (n.key === 'input' ? 'var(--neon-green)' : 'var(--neon-blue)') : 'var(--text3)',
+                transition: 'color .15s',
+              }}>
+              <n.icon size={18} strokeWidth={active ? 2.5 : 1.5} />
+              <span className="font-mono-data" style={{ fontSize: 8, fontWeight: 700 }}>{n.label}</span>
             </button>
           );
         })}
