@@ -83,7 +83,7 @@ export default function App() {
       </header>
 
       {/* Page Content */}
-      <main className="px-4 md:px-6 py-4 max-w-7xl mx-auto w-full flex-1">
+      <main className="px-3 md:px-6 py-4 max-w-7xl mx-auto w-full flex-1 overflow-x-hidden">
         {page === 'overview' && <OverviewPage data={data} onNavigate={navigate} />}
         {page === 'health' && <HealthPage data={data} />}
         {page === 'finance' && <FinancePage data={data} />}
