@@ -107,7 +107,7 @@ export default function OverviewPage({ data, onNavigate }: Props) {
       </div>
 
       {/* ── KPI Grid ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+      <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
         {kpis.map((s, i) => (
           <div key={s.l} className={`glass trading-card anim-fade d${i + 1}`} style={{ padding: 12, position: 'relative', cursor: 'pointer' }} onClick={() => onNavigate('health')}>
             <div className="accent-strip" style={{ background: s.c }} />
@@ -125,7 +125,8 @@ export default function OverviewPage({ data, onNavigate }: Props) {
         ))}
       </div>
 
-      {/* ── Weight Chart ── */}
+      {/* ── Weight + Fuel Row ── */}
+      <div className="trio-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
       <div className="glass anim-fade d3" style={{ padding: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
           <span className="font-display" style={{ fontWeight: 600, fontSize: 13 }}>Weight Trend</span>
@@ -148,7 +149,6 @@ export default function OverviewPage({ data, onNavigate }: Props) {
         </div>
       </div>
 
-      {/* ── Fuel ── */}
       <div className="glass anim-fade d4" style={{ padding: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
           <Flame size={14} style={{ color: 'var(--neon-orange)' }} />
@@ -180,12 +180,16 @@ export default function OverviewPage({ data, onNavigate }: Props) {
         </div>
       </div>
 
+      </div>{/* end trio-grid */}
+
       {/* ── Mini Charts ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         <Mini t="Sleep" data={sleepData} c="#a855f7" u="" i={<Moon size={12} />} />
         <Mini t="RHR" data={rhrData} c="#ff3b3b" u="bpm" i={<Heart size={12} />} />
       </div>
 
+      {/* ── Spending + Events Row ── */}
+      <div className="duo-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
       {/* ── Spending ── */}
       <div className="glass anim-fade d5" style={{ padding: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -228,6 +232,8 @@ export default function OverviewPage({ data, onNavigate }: Props) {
           ))}
         </div>
       </div>
+
+      </div>{/* end duo-grid */}
 
       {/* ── Workouts ── */}
       <div className="glass anim-fade d7" style={{ padding: 14 }}>

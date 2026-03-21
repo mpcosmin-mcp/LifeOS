@@ -1,64 +1,65 @@
 import { Brain, Heart, Shield, BookOpen } from 'lucide-react';
+import { fDateShort } from '../lib/helpers';
 import type { LifeOSData } from '../lib/types';
 
 export default function MindPage({ data }: { data: LifeOSData }) {
   const { triggers, sessions, homework } = data.psychology;
 
   return (
-    <div className="space-y-4">
-      <h2 className="font-black text-xl flex items-center gap-2 anim-fade">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <h2 className="font-display anim-fade" style={{ fontWeight: 700, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
         <Brain size={20} style={{ color: 'var(--neon-purple)' }} /> Mind
       </h2>
 
-      {/* Core Belief Card */}
-      <div className="glass p-4 md:p-6 anim-fade d1 relative overflow-hidden">
-        <div className="accent-strip" style={{ background: 'var(--neon-purple)' }} />
-        <div className="absolute -right-12 -top-12 w-32 h-32 rounded-full opacity-[0.04]" style={{ background: 'var(--neon-purple)' }} />
-        <div className="flex items-start gap-3 md:gap-4">
-          <Shield size={24} style={{ color: 'var(--neon-purple)' }} className="shrink-0 mt-1" />
-          <div className="min-w-0">
-            <h3 className="font-bold text-sm mb-2">Core Belief Being Reconsolidated</h3>
-            <p className="text-base md:text-lg italic text-[var(--text2)] leading-snug">"Nevoile mele nu sunt suficient de importante ca să fie văzute."</p>
-            <div className="mt-3 flex flex-wrap gap-1.5 md:gap-2">
-              <span className="chip text-[9px] md:text-[10px]" style={{ background: 'rgba(168,85,247,0.15)', color: 'var(--neon-purple)' }}>Origin: Father</span>
-              <span className="chip text-[9px] md:text-[10px]" style={{ background: 'rgba(59,130,246,0.15)', color: 'var(--neon-blue)' }}>Reinforced: School</span>
-              <span className="chip text-[9px] md:text-[10px]" style={{ background: 'rgba(236,72,153,0.15)', color: 'var(--neon-pink)' }}>Repeated: Ex-partner</span>
-              <span className="chip text-[9px] md:text-[10px]" style={{ background: 'rgba(249,115,22,0.15)', color: 'var(--neon-orange)' }}>Current: Work</span>
+      {/* Core Belief */}
+      <div className="glass accent-strip anim-fade d1" style={{ '--strip-color': 'var(--neon-purple)', padding: 16 } as any}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+          <Shield size={22} style={{ color: 'var(--neon-purple)', flexShrink: 0, marginTop: 2 }} />
+          <div style={{ minWidth: 0 }}>
+            <h3 className="font-display" style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Core Belief Being Reconsolidated</h3>
+            <p style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--text2)', lineHeight: 1.4 }}>"Nevoile mele nu sunt suficient de importante ca să fie văzute."</p>
+            <div style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              <span className="chip" style={{ background: 'rgba(168,85,247,0.15)', color: 'var(--neon-purple)' }}>Origin: Father</span>
+              <span className="chip" style={{ background: 'rgba(59,130,246,0.15)', color: 'var(--neon-blue)' }}>Reinforced: School</span>
+              <span className="chip" style={{ background: 'rgba(236,72,153,0.15)', color: 'var(--neon-pink)' }}>Repeated: Ex-partner</span>
+              <span className="chip" style={{ background: 'rgba(245,158,11,0.15)', color: 'var(--neon-orange)' }}>Current: Work</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Physical Signature — single col on mobile, 3 cols on tablet+ */}
-      <div className="glass p-4 md:p-5 anim-fade d2">
-        <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
-          <Heart size={16} style={{ color: 'var(--neon-red)' }} /> Physical Signature
-        </h3>
-        <div className="grid grid-cols-3 gap-2 md:gap-4 text-center">
-          <div className="p-3 md:p-4 rounded-2xl" style={{ background: 'rgba(255,59,59,0.08)' }}>
-            <div className="text-xl md:text-2xl mb-1 md:mb-2">🦶</div>
-            <div className="text-[10px] md:text-xs font-bold">Right Foot</div>
-            <div className="text-[9px] md:text-[10px] text-[var(--text3)]">Numbness</div>
+      {/* Physical Signature */}
+      <div className="glass anim-fade d2" style={{ padding: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <Heart size={16} style={{ color: 'var(--neon-red)' }} />
+          <h3 className="font-display" style={{ fontWeight: 700, fontSize: 13 }}>Physical Signature</h3>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, textAlign: 'center' }}>
+          <div style={{ padding: 12, borderRadius: 12, background: 'rgba(255,59,59,0.06)' }}>
+            <div style={{ fontSize: 22, marginBottom: 6 }}>🦶</div>
+            <div style={{ fontSize: 11, fontWeight: 700 }}>Right Foot</div>
+            <div style={{ fontSize: 10, color: 'var(--text3)' }}>Numbness</div>
           </div>
-          <div className="p-3 md:p-4 rounded-2xl" style={{ background: 'rgba(255,59,59,0.08)' }}>
-            <div className="text-xl md:text-2xl mb-1 md:mb-2">✋</div>
-            <div className="text-[10px] md:text-xs font-bold">Right Palm</div>
-            <div className="text-[9px] md:text-[10px] text-[var(--text3)]">Numbness</div>
+          <div style={{ padding: 12, borderRadius: 12, background: 'rgba(255,59,59,0.06)' }}>
+            <div style={{ fontSize: 22, marginBottom: 6 }}>✋</div>
+            <div style={{ fontSize: 11, fontWeight: 700 }}>Right Palm</div>
+            <div style={{ fontSize: 10, color: 'var(--text3)' }}>Numbness</div>
           </div>
-          <div className="p-3 md:p-4 rounded-2xl" style={{ background: 'rgba(255,59,59,0.08)' }}>
-            <div className="text-xl md:text-2xl mb-1 md:mb-2">💪</div>
-            <div className="text-[10px] md:text-xs font-bold leading-tight">Right Shoulder</div>
-            <div className="text-[9px] md:text-[10px] text-[var(--text3)]">Tension</div>
+          <div style={{ padding: 12, borderRadius: 12, background: 'rgba(255,59,59,0.06)' }}>
+            <div style={{ fontSize: 22, marginBottom: 6 }}>💪</div>
+            <div style={{ fontSize: 11, fontWeight: 700, lineHeight: 1.2 }}>Right Shoulder</div>
+            <div style={{ fontSize: 10, color: 'var(--text3)' }}>Tension</div>
           </div>
         </div>
       </div>
 
-      {/* Defense Patterns */}
-      <div className="glass p-4 md:p-5 anim-fade d3">
-        <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
-          <BookOpen size={16} style={{ color: 'var(--neon-blue)' }} /> Identified Patterns
-        </h3>
-        <div className="space-y-2">
+      {/* Identified Patterns */}
+      <div className="glass anim-fade d3" style={{ padding: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <BookOpen size={16} style={{ color: 'var(--neon-blue)' }} />
+          <h3 className="font-display" style={{ fontWeight: 700, fontSize: 13 }}>Identified Patterns</h3>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <PatternCard emoji="🧊" label="Freeze Response" desc="Verbal and emotional shutdown when needs are dismissed" color="var(--neon-blue)" />
           <PatternCard emoji="🧠" label="Intellectualization" desc="Using analysis as a defense to avoid feeling" color="var(--neon-purple)" />
           <PatternCard emoji="🔄" label="Victim Loop" desc="Comfort in victimhood — familiar but limiting" color="var(--neon-orange)" />
@@ -66,16 +67,16 @@ export default function MindPage({ data }: { data: LifeOSData }) {
         </div>
       </div>
 
-      {/* Protocol Status */}
-      <div className="glass p-4 md:p-5 anim-fade d4">
-        <h3 className="font-bold text-sm mb-3">Reconsolidation Protocol</h3>
-        <div className="grid grid-cols-3 gap-2 md:gap-4">
+      {/* Reconsolidation Protocol */}
+      <div className="glass anim-fade d4" style={{ padding: 16 }}>
+        <h3 className="font-display" style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>Reconsolidation Protocol</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
           <StatCard label="Sessions" value={sessions.length.toString()} sub="1/week" color="var(--neon-purple)" />
           <StatCard label="Triggers" value={triggers.length.toString()} sub="Logged" color="var(--neon-red)" />
           <StatCard label="Homework" value={homework.length.toString()} sub="Done" color="var(--neon-green)" />
         </div>
-        <div className="mt-3 p-3 rounded-xl text-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
-          <p className="text-[11px] md:text-sm text-[var(--text2)]">
+        <div style={{ marginTop: 12, padding: 12, borderRadius: 12, textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
+          <p style={{ fontSize: 12, color: 'var(--text2)' }}>
             {sessions.length === 0 && triggers.length === 0
               ? '🌱 Protocol initialized. Start logging triggers and sessions to see progress here.'
               : `${sessions.length} sessions completed. Keep going.`}
@@ -83,14 +84,62 @@ export default function MindPage({ data }: { data: LifeOSData }) {
         </div>
       </div>
 
+      {/* Trigger Log */}
+      {triggers.length > 0 && (
+        <div className="glass anim-fade d5" style={{ padding: 16 }}>
+          <h3 className="font-display" style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>Recent Triggers</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {triggers.slice(-5).reverse().map(t => (
+              <div key={t.id} style={{ padding: 12, borderRadius: 12, background: 'rgba(255,255,255,0.03)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span className="chip" style={{ background: 'rgba(255,59,59,0.12)', color: 'var(--neon-red)' }}>
+                    {t.trigger_type || 'Unknown'}{t.freeze_occurred ? ' · Freeze' : ''}
+                  </span>
+                  <span className="font-mono-data" style={{ fontSize: 10, color: 'var(--text3)' }}>{fDateShort(t.date)}</span>
+                </div>
+                {t.situation && <p style={{ fontSize: 11, color: 'var(--text2)', lineHeight: 1.3, marginTop: 4 }}>{t.situation}</p>}
+                {t.dominant_thought && <p style={{ fontSize: 11, fontStyle: 'italic', color: 'var(--text3)', marginTop: 4 }}>"{t.dominant_thought}"</p>}
+                {t.right_side_intensity != null && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                    <span style={{ fontSize: 9, color: 'var(--text3)', flexShrink: 0 }}>R-Side</span>
+                    <div className="progress-track" style={{ maxWidth: 80 }}>
+                      <div className="progress-fill" style={{ width: `${(t.right_side_intensity / 10) * 100}%`, background: 'var(--neon-red)' }} />
+                    </div>
+                    <span className="font-mono-data" style={{ fontSize: 10, color: 'var(--neon-red)' }}>{t.right_side_intensity}/10</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Session Log */}
+      {sessions.length > 0 && (
+        <div className="glass anim-fade d6" style={{ padding: 16 }}>
+          <h3 className="font-display" style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>Session Log</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {sessions.slice(-5).reverse().map(s => (
+              <div key={s.id} style={{ padding: 12, borderRadius: 12, background: 'rgba(255,255,255,0.03)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span className="font-display" style={{ fontWeight: 700, fontSize: 12 }}>Session #{s.session_number}</span>
+                  <span className="font-mono-data" style={{ fontSize: 10, color: 'var(--text3)' }}>{fDateShort(s.date)}</span>
+                </div>
+                {s.target_memory && <p style={{ fontSize: 11, color: 'var(--text2)', lineHeight: 1.3, marginTop: 4 }}>{s.target_memory}</p>}
+                {s.mismatch_used && <p style={{ fontSize: 11, color: 'var(--neon-green)', marginTop: 4 }}>Mismatch: {s.mismatch_used}</p>}
+                {s.belief_update && <p style={{ fontSize: 11, color: 'var(--neon-blue)', marginTop: 4 }}>Update: {s.belief_update}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Method */}
-      <div className="glass p-4 md:p-5 anim-fade d5">
-        <h3 className="font-bold text-sm mb-3">Method: Memory Reconsolidation</h3>
-        <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
+      <div className="glass anim-fade d7" style={{ padding: 16 }}>
+        <h3 className="font-display" style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>Method: Memory Reconsolidation</h3>
+        <div style={{ display: 'flex', gap: 8, flexDirection: 'column' }} className="sm:!flex-row">
           <Step num={1} label="Activate" desc="Access the emotional memory" color="var(--neon-red)" />
-          <div className="hidden sm:flex items-center text-[var(--text3)]">→</div>
           <Step num={2} label="Mismatch" desc="Introduce contradicting experience" color="var(--neon-orange)" />
-          <div className="hidden sm:flex items-center text-[var(--text3)]">→</div>
           <Step num={3} label="Integrate" desc="New belief replaces old" color="var(--neon-green)" />
         </div>
       </div>
@@ -100,11 +149,11 @@ export default function MindPage({ data }: { data: LifeOSData }) {
 
 function PatternCard({ emoji, label, desc, color }: { emoji: string; label: string; desc: string; color: string }) {
   return (
-    <div className="flex items-start gap-3 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)' }}>
-      <span className="text-lg md:text-xl shrink-0">{emoji}</span>
-      <div className="min-w-0">
-        <div className="font-bold text-[12px] md:text-sm" style={{ color }}>{label}</div>
-        <div className="text-[11px] md:text-xs text-[var(--text2)] leading-snug">{desc}</div>
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: 12, borderRadius: 12, background: 'rgba(255,255,255,0.03)' }}>
+      <span style={{ fontSize: 20, flexShrink: 0 }}>{emoji}</span>
+      <div style={{ minWidth: 0 }}>
+        <div className="font-display" style={{ fontWeight: 700, fontSize: 12, color }}>{label}</div>
+        <div style={{ fontSize: 11, color: 'var(--text2)', lineHeight: 1.3 }}>{desc}</div>
       </div>
     </div>
   );
@@ -112,20 +161,25 @@ function PatternCard({ emoji, label, desc, color }: { emoji: string; label: stri
 
 function StatCard({ label, value, sub, color }: { label: string; value: string; sub: string; color: string }) {
   return (
-    <div className="glass p-3 md:p-4 text-center">
-      <div className="font-mono-data font-black text-xl md:text-2xl" style={{ color }}>{value}</div>
-      <div className="text-[10px] md:text-xs font-bold mt-1">{label}</div>
-      <div className="text-[9px] md:text-[10px] text-[var(--text3)]">{sub}</div>
+    <div className="glass" style={{ padding: 12, textAlign: 'center' }}>
+      <div className="font-mono-data" style={{ fontWeight: 800, fontSize: 22, color }}>{value}</div>
+      <div style={{ fontSize: 11, fontWeight: 700, marginTop: 4 }}>{label}</div>
+      <div style={{ fontSize: 9, color: 'var(--text3)' }}>{sub}</div>
     </div>
   );
 }
 
 function Step({ num, label, desc, color }: { num: number; label: string; desc: string; color: string }) {
   return (
-    <div className="flex-1 p-3 md:p-4 rounded-xl text-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
-      <div className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center mx-auto mb-1.5 font-mono-data font-black text-sm" style={{ background: `${color}20`, color }}>{num}</div>
-      <div className="font-bold text-[12px] md:text-sm">{label}</div>
-      <div className="text-[9px] md:text-[10px] text-[var(--text2)] mt-0.5 leading-snug">{desc}</div>
+    <div style={{ flex: 1, padding: 12, borderRadius: 12, textAlign: 'center', background: 'rgba(255,255,255,0.03)' }}>
+      <div className="font-mono-data" style={{
+        width: 28, height: 28, borderRadius: '50%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        margin: '0 auto 6px', fontWeight: 800, fontSize: 13,
+        background: `color-mix(in srgb, ${color} 15%, transparent)`, color,
+      }}>{num}</div>
+      <div className="font-display" style={{ fontWeight: 700, fontSize: 12 }}>{label}</div>
+      <div style={{ fontSize: 10, color: 'var(--text2)', marginTop: 2, lineHeight: 1.3 }}>{desc}</div>
     </div>
   );
 }

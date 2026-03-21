@@ -49,27 +49,49 @@ export default function CalendarPage({ data }: { data: LifeOSData }) {
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [data.events, today]);
 
+  // Group upcoming by month
+  const upcomingByMonth = useMemo(() => {
+    const groups = new Map<string, typeof upcoming>();
+    upcoming.forEach(e => {
+      const d = new Date(e.date + 'T00:00:00');
+      const key = d.toLocaleDateString('ro-RO', { month: 'long', year: 'numeric' });
+      const arr = groups.get(key) || [];
+      arr.push(e);
+      groups.set(key, arr);
+    });
+    return Array.from(groups.entries());
+  }, [upcoming]);
+
   return (
-    <div className="space-y-4">
-      <h2 className="font-black text-xl flex items-center gap-2 anim-fade">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <h2 className="font-display anim-fade" style={{ fontWeight: 700, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
         <Calendar size={20} style={{ color: 'var(--neon-purple)' }} /> Calendar
       </h2>
 
-      {/* Calendar + Sidebar — stacked on mobile, side by side on desktop */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }} className="lg:!grid-cols-3">
         {/* Calendar Grid */}
-        <div className="lg:col-span-2 glass p-4 md:p-5 anim-fade d1">
-          <div className="flex items-center justify-between mb-3">
-            <button onClick={() => setMonthOffset(o => o - 1)} className="p-2 rounded-xl hover:bg-white/5 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"><ChevronLeft size={18} /></button>
-            <h3 className="font-bold text-sm capitalize">{monthLabel}</h3>
-            <button onClick={() => setMonthOffset(o => o + 1)} className="p-2 rounded-xl hover:bg-white/5 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"><ChevronRight size={18} /></button>
+        <div className="glass anim-fade d1" style={{ padding: 16 }} >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <button onClick={() => setMonthOffset(o => o - 1)}
+              style={{ padding: 8, borderRadius: 12, background: 'transparent', border: 'none', color: 'var(--text1)', cursor: 'pointer', minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ChevronLeft size={18} />
+            </button>
+            <h3 className="font-display" style={{ fontWeight: 700, fontSize: 14, textTransform: 'capitalize' }}>{monthLabel}</h3>
+            <button onClick={() => setMonthOffset(o => o + 1)}
+              style={{ padding: 8, borderRadius: 12, background: 'transparent', border: 'none', color: 'var(--text1)', cursor: 'pointer', minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ChevronRight size={18} />
+            </button>
           </div>
-          <div className="grid grid-cols-7 gap-1 mb-2">
+
+          {/* Day headers */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 4 }}>
             {['Lu', 'Ma', 'Mi', 'Jo', 'Vi', 'Sâ', 'Du'].map(d => (
-              <div key={d} className="text-center text-[9px] font-bold uppercase text-[var(--text3)] py-1">{d}</div>
+              <div key={d} style={{ textAlign: 'center', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text3)', padding: '4px 0' }}>{d}</div>
             ))}
           </div>
-          <div className="grid grid-cols-7 gap-1">
+
+          {/* Days grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
             {calendarDays.map((day, i) => {
               if (day === null) return <div key={`e${i}`} />;
               const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -77,73 +99,90 @@ export default function CalendarPage({ data }: { data: LifeOSData }) {
               const isToday = dateStr === today;
               const hasCost = events.some(e => e.cost > 0);
               return (
-                <div key={dateStr} className={`relative p-1.5 md:p-2 rounded-xl text-center min-h-[40px] md:min-h-[48px] transition-colors ${isToday ? 'ring-1 ring-[var(--neon-blue)]' : ''}`}
-                  style={{ background: events.length ? 'rgba(255,255,255,0.04)' : 'transparent' }}>
-                  <div className={`text-[11px] font-mono-data font-bold ${isToday ? 'text-[var(--neon-blue)]' : 'text-[var(--text2)]'}`}>{day}</div>
+                <div key={dateStr} style={{
+                  position: 'relative',
+                  padding: 6,
+                  borderRadius: 12,
+                  textAlign: 'center',
+                  minHeight: 40,
+                  background: events.length ? 'rgba(255,255,255,0.03)' : 'transparent',
+                  boxShadow: isToday ? 'inset 0 0 0 1px var(--neon-blue)' : 'none',
+                }}>
+                  <div className="font-mono-data" style={{ fontSize: 11, fontWeight: 700, color: isToday ? 'var(--neon-blue)' : 'var(--text2)' }}>{day}</div>
                   {events.length > 0 && (
-                    <div className="flex justify-center gap-0.5 mt-0.5 flex-wrap">
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: 2, flexWrap: 'wrap' }}>
                       {events.slice(0, 3).map((e, j) => (
-                        <div key={j} className="w-1.5 h-1.5 rounded-full" style={{
+                        <div key={j} style={{
+                          width: 5, height: 5, borderRadius: '50%',
                           background: e.type === 'bill' ? 'var(--neon-red)' : e.type === 'birthday' ? 'var(--neon-yellow)' :
                             e.type === 'sport' ? 'var(--neon-green)' : 'var(--neon-purple)',
                         }} />
                       ))}
                     </div>
                   )}
-                  {hasCost && <DollarSign size={8} className="absolute top-0.5 right-0.5" style={{ color: 'var(--neon-red)', opacity: 0.6 }} />}
+                  {hasCost && <DollarSign size={8} style={{ position: 'absolute', top: 2, right: 2, color: 'var(--neon-red)', opacity: 0.6 }} />}
                 </div>
               );
             })}
           </div>
+
           {/* Legend */}
-          <div className="flex flex-wrap items-center gap-3 mt-3 text-[10px] text-[var(--text3)]">
-            <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full" style={{ background: 'var(--neon-red)' }} />Bill</span>
-            <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full" style={{ background: 'var(--neon-yellow)' }} />Birthday</span>
-            <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full" style={{ background: 'var(--neon-green)' }} />Sport</span>
-            <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full" style={{ background: 'var(--neon-purple)' }} />Event</span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, marginTop: 12, fontSize: 10, color: 'var(--text3)' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--neon-red)' }} />Bill</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--neon-yellow)' }} />Birthday</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--neon-green)' }} />Sport</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--neon-purple)' }} />Event</span>
           </div>
         </div>
 
-        {/* Sidebar — stacked below on mobile */}
-        <div className="space-y-3">
-          {/* Cost forecast */}
-          <div className="glass p-4 md:p-5 anim-fade d2">
-            <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
-              <DollarSign size={16} style={{ color: 'var(--neon-red)' }} /> Upcoming Costs
-            </h3>
-            <div className="font-mono-data font-black text-2xl mb-3" style={{ color: totalUpcomingCost > 2000 ? 'var(--neon-red)' : 'var(--text)' }}>
+        {/* Sidebar */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Upcoming Costs */}
+          <div className="glass anim-fade d2" style={{ padding: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <DollarSign size={16} style={{ color: 'var(--neon-red)' }} />
+              <h3 className="font-display" style={{ fontWeight: 700, fontSize: 13 }}>Upcoming Costs</h3>
+            </div>
+            <div className="font-mono-data" style={{ fontWeight: 800, fontSize: 24, marginBottom: 12, color: totalUpcomingCost > 2000 ? 'var(--neon-red)' : 'var(--text1)' }}>
               {Math.round(totalUpcomingCost)} lei
             </div>
-            <div className="space-y-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {upcomingCosts.map(e => (
-                <div key={e.id} className="flex items-center gap-2 text-xs min-h-[32px]">
-                  <span className="shrink-0">{categoryEmoji(e.type)}</span>
-                  <span className="flex-1 min-w-0 text-[11px] leading-tight">{e.title}</span>
-                  <span className="font-mono-data font-bold text-[var(--neon-red)] shrink-0">{e.cost}</span>
-                  <span className="font-mono-data text-[var(--text3)] shrink-0 text-[11px]">{fDateShort(e.date)}</span>
+                <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, minHeight: 28 }}>
+                  <span style={{ flexShrink: 0 }}>{categoryEmoji(e.type)}</span>
+                  <span style={{ flex: 1, minWidth: 0, fontSize: 11, lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.title}</span>
+                  <span className="font-mono-data" style={{ fontWeight: 700, color: 'var(--neon-red)', flexShrink: 0, fontSize: 11 }}>{e.cost}</span>
+                  <span className="font-mono-data" style={{ color: 'var(--text3)', flexShrink: 0, fontSize: 10 }}>{fDateShort(e.date)}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Full upcoming list */}
-          <div className="glass p-4 md:p-5 anim-fade d3">
-            <h3 className="font-bold text-sm mb-3">All Upcoming</h3>
-            <div className="space-y-1.5 max-h-[350px] overflow-y-auto">
-              {upcoming.map(e => (
-                <div key={e.id} className="flex items-start gap-2 text-xs py-1.5 min-h-[32px]">
-                  <span className="shrink-0 mt-0.5">{categoryEmoji(e.type)}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[11px] leading-tight">{e.title}</div>
-                    {e.location && <div className="text-[10px] text-[var(--text3)] leading-tight">📍 {e.location}</div>}
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="font-mono-data text-[11px] text-[var(--text3)]">{fDateShort(e.date)}</div>
-                    {e.cost > 0 && <div className="font-mono-data text-[11px] text-[var(--neon-red)]">{e.cost} lei</div>}
+          {/* All Upcoming grouped by month */}
+          <div className="glass anim-fade d3" style={{ padding: 16 }}>
+            <h3 className="font-display" style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>All Upcoming</h3>
+            <div style={{ maxHeight: 350, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {upcomingByMonth.map(([monthName, events]) => (
+                <div key={monthName}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text3)', marginBottom: 6, letterSpacing: '0.06em' }}>{monthName}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {events.map(e => (
+                      <div key={e.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12, minHeight: 28 }}>
+                        <span style={{ flexShrink: 0, marginTop: 1 }}>{categoryEmoji(e.type)}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 11, lineHeight: 1.3 }}>{e.title}</div>
+                          {e.location && <div style={{ fontSize: 10, color: 'var(--text3)', lineHeight: 1.3 }}>📍 {e.location}</div>}
+                        </div>
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          <div className="font-mono-data" style={{ fontSize: 10, color: 'var(--text3)' }}>{fDateShort(e.date)}</div>
+                          {e.cost > 0 && <div className="font-mono-data" style={{ fontSize: 10, color: 'var(--neon-red)' }}>{e.cost} lei</div>}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
-              {!upcoming.length && <p className="text-xs text-[var(--text3)] text-center py-4">No upcoming events</p>}
+              {!upcoming.length && <p style={{ fontSize: 12, color: 'var(--text3)', textAlign: 'center', padding: '16px 0' }}>No upcoming events</p>}
             </div>
           </div>
         </div>

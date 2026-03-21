@@ -54,50 +54,52 @@ export default function FinancePage({ data }: { data: LifeOSData }) {
 
   const colors: Record<string, string> = {
     food: '#00ff88', social: '#ec4899', transport: '#3b82f6',
-    subscriptions: '#a855f7', household: '#f97316', health: '#facc15', other: '#475569',
+    subscriptions: '#a855f7', household: '#f59e0b', health: '#facc15', other: '#475569',
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 anim-fade">
-        <h2 className="font-black text-xl flex items-center gap-2"><Wallet size={20} style={{ color: 'var(--neon-green)' }} /> Finance</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div className="anim-fade" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <h2 className="font-display anim-fade" style={{ fontWeight: 700, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Wallet size={20} style={{ color: 'var(--neon-green)' }} /> Finance
+        </h2>
         <div className="tab-bar">
           {(['7d', '30d', 'all'] as TimeFilter[]).map(p => (
-            <button key={p} className={`tab ${period === p ? 'on' : ''}`} onClick={() => setPeriod(p)}>{p === 'all' ? 'All' : p.toUpperCase()}</button>
+            <button key={p} className={`tab ${period === p ? 'active' : ''}`} onClick={() => setPeriod(p)}>{p === 'all' ? 'All' : p.toUpperCase()}</button>
           ))}
         </div>
       </div>
 
-      {/* Summary Cards — 2 cols mobile, 4 tablet */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3">
-        <SummaryCard label="Total Spent" value={`${Math.round(totalSpent)} lei`} color="var(--text)" />
+      {/* Summary Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }} className="sm:!grid-cols-4">
+        <SummaryCard label="Total Spent" value={`${Math.round(totalSpent)} lei`} color="var(--text1)" />
         <SummaryCard label="+ROI" value={`${Math.round(roiStats['+'].amount)} lei`} sub={`${roiStats['+'].count} txns`} color="var(--neon-green)" />
         <SummaryCard label="Neutral" value={`${Math.round(roiStats['0'].amount)} lei`} sub={`${roiStats['0'].count} txns`} color="var(--text3)" />
         <SummaryCard label="-ROI" value={`${Math.round(roiStats['-'].amount)} lei`} sub={`${roiStats['-'].count} txns`} color="var(--neon-red)" />
       </div>
 
-      {/* Charts — stacked on mobile */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <div className="glass p-4 md:p-5 anim-fade d2">
-          <h3 className="font-bold text-sm mb-3">Daily Spending</h3>
-          <div className="chart-fluid h-[160px] md:h-[200px]">
+      {/* Charts */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }} className="lg:!grid-cols-2">
+        <div className="glass anim-fade d2" style={{ padding: 16 }}>
+          <h3 className="font-display" style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>Daily Spending</h3>
+          <div className="chart-fluid" style={{ height: 160 }}>
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <BarChart data={dailySpending}>
                 <Tooltip cursor={<CrosshairCursor />} content={<FloatingTooltip unit="lei" color="#00ff88" />} isAnimationActive={false} />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} interval="preserveStartEnd" />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} interval="preserveStartEnd" />
                 <Bar dataKey="amount" radius={[4, 4, 0, 0]} fill="#00ff88" fillOpacity={0.5} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="glass p-4 md:p-5 anim-fade d3">
-          <h3 className="font-bold text-sm mb-3">Cumulative</h3>
-          <div className="chart-fluid h-[160px] md:h-[200px]" style={{ '--chart-accent': 'rgba(59,130,246,0.4)' } as any}>
+        <div className="glass anim-fade d3" style={{ padding: 16 }}>
+          <h3 className="font-display" style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>Cumulative</h3>
+          <div className="chart-fluid" style={{ height: 160 }}>
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <AreaChart data={cumulative}>
                 <defs><linearGradient id="gCum" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} /><stop offset="95%" stopColor="#3b82f6" stopOpacity={0} /></linearGradient></defs>
                 <Tooltip cursor={<CrosshairCursor />} content={<FloatingTooltip unit="lei" color="#3b82f6" />} isAnimationActive={false} />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} interval="preserveStartEnd" />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} interval="preserveStartEnd" />
                 <Area type="monotone" dataKey="cumulative" stroke="#3b82f6" strokeWidth={2.5} fill="url(#gCum)" activeDot={{ r: 5, stroke: '#fff', strokeWidth: 2 }} />
               </AreaChart>
             </ResponsiveContainer>
@@ -105,39 +107,44 @@ export default function FinancePage({ data }: { data: LifeOSData }) {
         </div>
       </div>
 
-      {/* Category breakdown */}
-      <div className="glass p-4 md:p-5 anim-fade d4">
-        <h3 className="font-bold text-sm mb-3">By Category</h3>
-        <div className="space-y-2">
+      {/* Category Breakdown */}
+      <div className="glass anim-fade d4" style={{ padding: 16 }}>
+        <h3 className="font-display" style={{ fontWeight: 700, fontSize: 13, marginBottom: 12 }}>By Category</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {byCat.map(c => (
-            <div key={c.name} className="flex items-center gap-2 md:gap-3 cursor-pointer min-h-[36px]" onClick={() => setCatFilter(catFilter === c.name ? 'all' : c.name)}>
-              <span className="text-base shrink-0">{categoryEmoji(c.name)}</span>
-              <span className={`text-[11px] md:text-sm capitalize w-16 md:w-24 ${catFilter === c.name ? 'text-[var(--neon-blue)] font-bold' : 'text-[var(--text2)]'}`}>{c.name}</span>
-              <div className="flex-1 min-w-0"><div className="progress-track"><div className="progress-fill" style={{ width: `${(c.total / (byCat[0]?.total || 1)) * 100}%`, background: colors[c.name] || '#475569' }} /></div></div>
-              <span className="font-mono-data text-xs font-bold shrink-0">{Math.round(c.total)}</span>
-              <span className="font-mono-data text-[10px] text-[var(--text3)] shrink-0">{c.count}x</span>
+            <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', minHeight: 32 }}
+              onClick={() => setCatFilter(catFilter === c.name ? 'all' : c.name)}>
+              <span style={{ fontSize: 14, flexShrink: 0 }}>{categoryEmoji(c.name)}</span>
+              <span style={{
+                fontSize: 11, textTransform: 'capitalize', width: 64, flexShrink: 0,
+                color: catFilter === c.name ? 'var(--neon-blue)' : 'var(--text2)',
+                fontWeight: catFilter === c.name ? 700 : 400,
+              }}>{c.name}</span>
+              <div className="progress-track"><div className="progress-fill" style={{ width: `${(c.total / (byCat[0]?.total || 1)) * 100}%`, background: colors[c.name] || '#475569' }} /></div>
+              <span className="font-mono-data" style={{ fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{Math.round(c.total)}</span>
+              <span className="font-mono-data" style={{ fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>{c.count}x</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Transaction List */}
-      <div className="glass p-4 md:p-5 anim-fade d5">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-bold text-sm">Transactions</h3>
-          <span className="chip text-[10px]" style={{ background: 'rgba(255,255,255,0.06)' }}>{filtered.length} items</span>
+      <div className="glass anim-fade d5" style={{ padding: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <h3 className="font-display" style={{ fontWeight: 700, fontSize: 13 }}>Transactions</h3>
+          <span className="chip">{filtered.length} items</span>
         </div>
-        <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
-          {filtered.map(t => (
-            <div key={t.id} className="flex items-center gap-2 md:gap-3 py-2 px-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.02)' }}>
-              <span className="text-sm shrink-0">{categoryEmoji(t.category)}</span>
-              <div className="flex-1 min-w-0">
-                <div className="text-[12px] md:text-sm leading-tight">{t.description}</div>
-                <div className="text-[10px] text-[var(--text3)]">{t.category} · {fDateShort(t.date)}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 400, overflowY: 'auto' }}>
+          {filtered.slice(0, 20).map(t => (
+            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.02)' }}>
+              <span style={{ fontSize: 14, flexShrink: 0 }}>{categoryEmoji(t.category)}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12, lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.description}</div>
+                <div style={{ fontSize: 10, color: 'var(--text3)' }}>{t.category} · {fDateShort(t.date)}</div>
               </div>
-              <div className="text-right shrink-0">
-                <div className="font-mono-data text-sm font-bold" style={{ color: roiColor(t.roi_flag) }}>{t.amount} lei</div>
-                <div className="text-[10px] font-mono-data" style={{ color: roiColor(t.roi_flag) }}>
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <div className="font-mono-data" style={{ fontSize: 13, fontWeight: 700, color: roiColor(t.roi_flag) }}>{t.amount} lei</div>
+                <div className="font-mono-data" style={{ fontSize: 10, color: roiColor(t.roi_flag) }}>
                   {t.roi_flag === '+' ? '+ROI' : t.roi_flag === '-' ? '-ROI' : '~'}
                   {t.quantity ? ` · ${t.quantity}x` : ''}
                 </div>
@@ -152,10 +159,10 @@ export default function FinancePage({ data }: { data: LifeOSData }) {
 
 function SummaryCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color: string }) {
   return (
-    <div className="glass p-3 md:p-4 anim-fade">
-      <div className="text-[9px] md:text-[10px] font-bold uppercase tracking-wider text-[var(--text3)] mb-1">{label}</div>
-      <div className="font-mono-data font-black text-base md:text-lg" style={{ color }}>{value}</div>
-      {sub && <div className="text-[10px] text-[var(--text3)]">{sub}</div>}
+    <div className="glass anim-fade" style={{ padding: 12 }}>
+      <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text3)', marginBottom: 4 }}>{label}</div>
+      <div className="font-mono-data" style={{ fontWeight: 800, fontSize: 16, color }}>{value}</div>
+      {sub && <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 2 }}>{sub}</div>}
     </div>
   );
 }

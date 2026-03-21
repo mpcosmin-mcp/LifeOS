@@ -47,7 +47,7 @@ export default function App() {
   return (
     <div className="content-safe">
       {/* ── Desktop Header ── */}
-      <header style={{ display: 'none', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid var(--glass-border)' }} className="md:!flex">
+      <header className="desktop-header" style={{ display: 'none', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid var(--glass-border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => go('overview')}>
           <span style={{ fontSize: 22 }}>🧬</span>
           <span className="font-display" style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.02em' }}>LIFE OS</span>
@@ -66,7 +66,7 @@ export default function App() {
       </header>
 
       {/* ── Mobile Header ── */}
-      <header className="md:hidden" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px' }}>
+      <header className="mobile-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} onClick={() => go('overview')}>
           <span style={{ fontSize: 18 }}>🧬</span>
           <span className="font-display" style={{ fontWeight: 700, fontSize: 13, letterSpacing: '-0.02em' }}>LIFE OS</span>
