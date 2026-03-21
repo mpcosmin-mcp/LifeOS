@@ -139,7 +139,12 @@ export default function OverviewPage({ data, onNavigate }: Props) {
               <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" />
               <circle cx="50" cy="50" r="42" fill="none" stroke={scoreColor(lifeScore.total)} strokeWidth="8"
                 strokeLinecap="round" strokeDasharray={`${lifeScore.total * 2.64} 264`}
-                style={{ filter: `drop-shadow(0 0 8px ${scoreColor(lifeScore.total)})`, transition: 'stroke-dasharray 1s ease' }} />
+                style={{
+                  filter: `drop-shadow(0 0 8px ${scoreColor(lifeScore.total)})`,
+                  transition: 'stroke-dasharray 1s ease',
+                  '--pulse-color': scoreColor(lifeScore.total),
+                  animation: 'scorePulse 3s ease-in-out infinite',
+                } as any} />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="font-mono-data font-black text-xl">{lifeScore.total}</span>
@@ -152,7 +157,7 @@ export default function OverviewPage({ data, onNavigate }: Props) {
             <div className="space-y-1">
               {scoreFactors.map(sf => (
                 <div key={sf.key} className="flex items-center gap-1.5">
-                  <div className="flex items-center gap-1 shrink-0" style={{ color: sf.color, width: 70 }}>
+                  <div className="flex items-center gap-1 shrink-0" style={{ color: sf.color, width: 62 }}>
                     {sf.icon}
                     <span className="text-[8px] font-bold uppercase text-[var(--text3)]">{sf.label}</span>
                   </div>
@@ -165,7 +170,7 @@ export default function OverviewPage({ data, onNavigate }: Props) {
         </div>
       </div>
 
-      {/* ═══ KPI Grid — 2 cols on mobile, 3 on tablet, 6 on desktop ═══ */}
+      {/* ═══ KPI Grid — 2 cols mobile, 3 tablet, 6 desktop ═══ */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-3">
         {stats.map((s, i) => (
           <div key={s.label} className={`glass p-3 md:p-4 relative overflow-hidden trading-card cursor-pointer anim-fade d${i + 1}`}
@@ -187,13 +192,13 @@ export default function OverviewPage({ data, onNavigate }: Props) {
         ))}
       </div>
 
-      {/* ═══ Weight Chart ═══ */}
+      {/* ═══ Weight Chart — 160px mobile, 200px desktop ═══ */}
       <div className="glass p-4 md:p-5 anim-fade d3">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold text-sm">Weight Trend</h3>
           <span className="chip text-[10px]" style={{ background: 'rgba(59,130,246,0.15)', color: 'var(--neon-blue)' }}>{weightData.length} entries</span>
         </div>
-        <div className="chart-fluid" style={{ height: 180, '--chart-accent': 'rgba(59,130,246,0.4)' } as any}>
+        <div className="chart-fluid h-[160px] md:h-[200px]" style={{ '--chart-accent': 'rgba(59,130,246,0.4)' } as any}>
           <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
             <AreaChart data={weightData}>
               <defs>
@@ -206,18 +211,18 @@ export default function OverviewPage({ data, onNavigate }: Props) {
               <Tooltip cursor={<CrosshairCursor />} content={<FloatingTooltip unit="kg" color="#3b82f6" />} isAnimationActive={false} />
               <Area type="monotone" dataKey="val" stroke="#3b82f6" strokeWidth={2.5} fill="url(#gWeight)"
                 activeDot={{ r: 5, stroke: '#fff', strokeWidth: 2 }} />
-              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} />
+              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} interval="preserveStartEnd" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* ═══ Fuel + Hydration ═══ */}
-      <div className="glass p-4 md:p-5 anim-fade d4">
+      <div className="glass p-4 pr-5 md:p-5 anim-fade d4">
         <h3 className="font-bold text-sm mb-1 flex items-center gap-2"><Flame size={16} style={{ color: 'var(--neon-orange)' }} /> Fuel</h3>
         <p className="text-[10px] text-[var(--text3)] mb-3">{todayNutrition.dateLabel} · {todayNutrition.meals} meals</p>
-        <div className="flex items-center gap-4 mb-4">
-          <div className="relative w-16 h-16 md:w-20 md:h-20 shrink-0">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="relative w-14 h-14 md:w-20 md:h-20 shrink-0">
             <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
               <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
               <circle cx="50" cy="50" r="40" fill="none" stroke={todayNutrition.calories > 2200 ? 'var(--neon-red)' : 'var(--neon-green)'} strokeWidth="6" strokeLinecap="round"
@@ -241,14 +246,14 @@ export default function OverviewPage({ data, onNavigate }: Props) {
         </div>
       </div>
 
-      {/* ═══ Mini Charts Row ═══ */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* ═══ Mini Charts Row — stacked on mobile, 2 cols desktop ═══ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <MiniChart title="Sleep" data={sleepData} color="#a855f7" unit="" icon={<Moon size={14} />} />
         <MiniChart title="RHR" data={rhrData} color="#ff3b3b" unit="bpm" icon={<Heart size={14} />} />
       </div>
 
       {/* ═══ Spending ═══ */}
-      <div className="glass p-4 md:p-5 anim-fade d5">
+      <div className="glass p-4 pr-5 md:p-5 anim-fade d5">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-bold text-sm flex items-center gap-2"><Wallet size={16} style={{ color: 'var(--neon-green)' }} /> Spending</h3>
           <span className="font-mono-data text-sm font-black" style={{ color: monthSpending > 2500 ? 'var(--neon-red)' : 'var(--text)' }}>{Math.round(monthSpending)} lei</span>
@@ -258,7 +263,7 @@ export default function OverviewPage({ data, onNavigate }: Props) {
           {spendingByCategory.map(cat => (
             <div key={cat.name} className="flex items-center gap-2">
               <span className="text-sm shrink-0">{categoryEmoji(cat.name)}</span>
-              <span className="text-xs text-[var(--text2)] capitalize w-16 md:w-20 truncate">{cat.name}</span>
+              <span className="text-[11px] text-[var(--text2)] capitalize w-16 md:w-20">{cat.name}</span>
               <div className="flex-1 min-w-0"><div className="progress-track"><div className="progress-fill" style={{ width: `${(cat.value / (spendingByCategory[0]?.value || 1)) * 100}%`, background: cat.color }} /></div></div>
               <span className="font-mono-data text-xs font-bold shrink-0">{cat.value}</span>
             </div>
@@ -269,16 +274,16 @@ export default function OverviewPage({ data, onNavigate }: Props) {
         </div>
       </div>
 
-      {/* ═══ Upcoming + Workouts — side by side on desktop, stacked on mobile ═══ */}
+      {/* ═══ Upcoming + Workouts — stacked on mobile, side by side on desktop ═══ */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="glass p-4 md:p-5 anim-fade d6">
           <h3 className="font-bold text-sm mb-3 flex items-center gap-2"><Calendar size={16} style={{ color: 'var(--neon-purple)' }} /> Upcoming</h3>
           <div className="space-y-2">
             {!upcomingEvents.length && <p className="text-xs text-[var(--text3)]">Nothing upcoming</p>}
             {upcomingEvents.map(e => (
-              <div key={e.id} className="flex items-center gap-2 text-xs cursor-pointer group" onClick={() => onNavigate('calendar')}>
+              <div key={e.id} className="flex items-center gap-2 text-xs cursor-pointer group min-h-[36px]" onClick={() => onNavigate('calendar')}>
                 <span className="shrink-0">{categoryEmoji(e.type)}</span>
-                <span className="truncate flex-1 min-w-0 group-hover:text-[var(--neon-blue)] transition-colors">{e.title}</span>
+                <span className="flex-1 min-w-0 text-[11px] leading-tight group-hover:text-[var(--neon-blue)] transition-colors">{e.title}</span>
                 {e.cost > 0 && <span className="font-mono-data text-[var(--neon-red)] shrink-0">{e.cost}</span>}
                 <span className="font-mono-data text-[var(--text3)] shrink-0">{fDateShort(e.date)}</span>
               </div>
@@ -290,10 +295,10 @@ export default function OverviewPage({ data, onNavigate }: Props) {
           <div className="space-y-2">
             {!data.workouts.length && <p className="text-xs text-[var(--text3)]">No workouts</p>}
             {data.workouts.slice(0, 3).map(w => (
-              <div key={w.id} className="flex items-center gap-2 text-xs">
+              <div key={w.id} className="flex items-center gap-2 text-xs min-h-[36px]">
                 <span className="shrink-0">{workoutEmoji(w.type)}</span>
-                <div className="flex-1 min-w-0 truncate">
-                  <span className="capitalize">{w.type.replace(/[_+]/g, ' ')}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="capitalize text-[11px]">{w.type.replace(/[_+]/g, ' ')}</span>
                   {w.duration_min && <span className="text-[var(--text3)]"> · {Math.round(w.duration_min)}m</span>}
                   {w.distance_km ? <span className="text-[var(--text3)]"> · {w.distance_km}km</span> : null}
                 </div>
@@ -329,7 +334,7 @@ function MiniChart({ title, data, color, unit, icon }: { title: string; data: { 
         <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--text3)]">{title}</span>
         {data.length > 0 && <span className="ml-auto font-mono-data font-black text-sm" style={{ color }}>{data[data.length - 1].val}{unit && <span className="text-[10px] text-[var(--text3)] ml-0.5">{unit}</span>}</span>}
       </div>
-      <div className="chart-fluid" style={{ height: 70, '--chart-accent': `${color}66` } as any}>
+      <div className="chart-fluid h-[80px] md:h-[100px]" style={{ '--chart-accent': `${color}66` } as any}>
         <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <AreaChart data={data}>
             <defs><linearGradient id={gid} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={color} stopOpacity={0.25} /><stop offset="95%" stopColor={color} stopOpacity={0} /></linearGradient></defs>

@@ -31,10 +31,10 @@ export default function App() {
 
   useEffect(() => { loadData(); }, []);
 
-  // Refresh data when navigating away from input page
   const navigate = (p: AppPage) => {
     if (page === 'input' && p !== 'input') loadData();
     setPage(p);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (loading || !data) {
@@ -72,7 +72,7 @@ export default function App() {
       </header>
 
       {/* Mobile Header */}
-      <header className="md:hidden flex items-center justify-between px-4 py-3">
+      <header className="md:hidden flex items-center justify-between px-3 py-3">
         <div className="flex items-center gap-2" onClick={() => navigate('overview')}>
           <span className="text-xl">🧬</span>
           <span className="font-black text-sm tracking-tight">LIFE OS</span>
@@ -82,8 +82,8 @@ export default function App() {
         </div>
       </header>
 
-      {/* Page Content */}
-      <main className="px-3 md:px-6 py-4 max-w-7xl mx-auto w-full flex-1 overflow-x-hidden">
+      {/* Page Content — 12px padding mobile, 24px desktop */}
+      <main className="max-w-7xl mx-auto w-full flex-1 overflow-x-hidden" style={{ padding: '12px' }}>
         {page === 'overview' && <OverviewPage data={data} onNavigate={navigate} />}
         {page === 'health' && <HealthPage data={data} />}
         {page === 'finance' && <FinancePage data={data} />}
@@ -92,17 +92,21 @@ export default function App() {
         {page === 'input' && <InputPage />}
       </main>
 
-      {/* Mobile Bottom Nav */}
+      {/* Mobile Bottom Nav — 56px + safe area */}
       <nav className="mob-nav">
         {NAV_ITEMS.map(n => {
           const active = page === n.key;
+          const color = active
+            ? (n.key === 'input' ? 'var(--neon-green)' : 'var(--neon-blue)')
+            : 'var(--text3)';
           return (
             <button key={n.key}
               onClick={() => navigate(n.key)}
-              className="flex flex-col items-center gap-0.5 py-1.5 px-2 min-w-[44px]"
-              style={{ color: active ? (n.key === 'input' ? 'var(--neon-green)' : 'var(--neon-blue)') : 'var(--text3)' }}>
-              <n.icon size={18} strokeWidth={active ? 2.5 : 1.5} />
-              <span className="text-[8px] font-bold">{n.label}</span>
+              className="mob-nav-item relative"
+              style={{ color }}>
+              <n.icon size={20} strokeWidth={active ? 2.5 : 1.5} />
+              <span className="text-[9px] font-bold leading-none">{n.label}</span>
+              {active && <div className="nav-dot" style={{ background: color }} />}
             </button>
           );
         })}

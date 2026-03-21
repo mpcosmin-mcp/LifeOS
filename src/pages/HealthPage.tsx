@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
-import { Heart, Moon, Footprints, Droplets, Flame, Scale, Activity, TrendingDown, TrendingUp, Zap } from 'lucide-react';
+import { Heart, Moon, Footprints, Droplets, Flame, Scale, Activity, Zap } from 'lucide-react';
 import { CrosshairCursor, FloatingTooltip, MultiTooltip } from '../components/ChartCrosshair';
-import { f, fDateShort, d, dColor, workoutEmoji, scoreColor } from '../lib/helpers';
+import { f, fDateShort, workoutEmoji } from '../lib/helpers';
 import type { LifeOSData } from '../lib/types';
 
 type Period = '7d' | '14d' | '30d' | 'all';
@@ -16,7 +16,6 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
     return data.health.slice(-days);
   }, [data.health, period]);
 
-  // Chart data
   const weightBf = useMemo(() => filtered.filter(h => h.weight_kg || h.body_fat_pct).map(h => ({
     date: fDateShort(h.date), weight: h.weight_kg, bf: h.body_fat_pct,
   })), [filtered]);
@@ -33,7 +32,6 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
     date: fDateShort(h.date), steps: h.steps,
   })), [filtered]);
 
-  // Nutrition by day
   const nutritionByDay = useMemo(() => {
     const map = new Map<string, { cal: number; protein: number; water: number; carbs: number; fat: number }>();
     data.nutrition.forEach(n => {
@@ -48,7 +46,6 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
       .map(([date, v]) => ({ date: fDateShort(date), ...v }));
   }, [data.nutrition]);
 
-  // Latest non-null values
   const latest = (field: string) => {
     for (let i = data.health.length - 1; i >= 0; i--) {
       const v = (data.health[i] as any)[field];
@@ -63,7 +60,7 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between anim-fade">
         <h2 className="font-black text-xl flex items-center gap-2"><Activity size={20} style={{ color: 'var(--neon-green)' }} /> Health</h2>
@@ -74,8 +71,8 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
         </div>
       </div>
 
-      {/* KPI Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+      {/* KPI Row — 2 cols mobile, 4 tablet, 8 desktop */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 md:gap-3">
         <KpiMini label="Weight" value={f(latest('weight_kg'))} unit="kg" color="var(--neon-blue)" icon={<Scale size={14} />} />
         <KpiMini label="Body Fat" value={f(latest('body_fat_pct'))} unit="%" color="var(--neon-orange)" icon={<Flame size={14} />} />
         <KpiMini label="Visceral" value={f(latest('visceral_fat'), 0)} unit="" color="var(--neon-red)" icon={<Heart size={14} />} />
@@ -87,15 +84,15 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
       </div>
 
       {/* Weight + Body Fat */}
-      <div className="glass p-5 anim-fade d2">
-        <h3 className="font-bold text-sm mb-4">Weight & Body Fat</h3>
-        <div className="chart-fluid" style={{ height: 250 } as any}>
+      <div className="glass p-4 md:p-5 anim-fade d2">
+        <h3 className="font-bold text-sm mb-3">Weight & Body Fat</h3>
+        <div className="chart-fluid h-[160px] md:h-[250px]">
           <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
             <LineChart data={weightBf}>
               <Tooltip cursor={<CrosshairCursor />} content={<MultiTooltip />} isAnimationActive={false} />
-              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} />
-              <YAxis yAxisId="w" orientation="left" domain={['auto', 'auto']} axisLine={false} tickLine={false} tick={{ fill: '#3b82f6', fontSize: 9 }} width={35} />
-              <YAxis yAxisId="bf" orientation="right" domain={['auto', 'auto']} axisLine={false} tickLine={false} tick={{ fill: '#f97316', fontSize: 9 }} width={35} />
+              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} interval="preserveStartEnd" />
+              <YAxis yAxisId="w" orientation="left" domain={['auto', 'auto']} axisLine={false} tickLine={false} tick={{ fill: '#3b82f6', fontSize: 9 }} width={32} />
+              <YAxis yAxisId="bf" orientation="right" domain={['auto', 'auto']} axisLine={false} tickLine={false} tick={{ fill: '#f97316', fontSize: 9 }} width={32} />
               <Line yAxisId="w" type="monotone" dataKey="weight" name="Weight (kg)" stroke="#3b82f6" strokeWidth={2.5} dot={false} activeDot={{ r: 5, stroke: '#fff', strokeWidth: 2 }} connectNulls />
               <Line yAxisId="bf" type="monotone" dataKey="bf" name="Body Fat (%)" stroke="#f97316" strokeWidth={2} dot={false} strokeDasharray="6 3" activeDot={{ r: 4, stroke: '#fff', strokeWidth: 2 }} connectNulls />
             </LineChart>
@@ -103,24 +100,24 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
         </div>
       </div>
 
-      {/* Sleep & HRV + Heart Rate */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="glass p-5 anim-fade d3">
-          <h3 className="font-bold text-sm mb-4">Sleep & HRV</h3>
-          <div className="chart-fluid" style={{ height: 200 } as any}>
+      {/* Sleep & HRV + Heart Rate — stacked on mobile */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div className="glass p-4 md:p-5 anim-fade d3">
+          <h3 className="font-bold text-sm mb-3">Sleep & HRV</h3>
+          <div className="chart-fluid h-[160px] md:h-[200px]">
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <LineChart data={sleepHrv}>
                 <Tooltip cursor={<CrosshairCursor />} content={<MultiTooltip />} isAnimationActive={false} />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} interval="preserveStartEnd" />
                 <Line type="monotone" dataKey="sleep" name="Sleep Score" stroke="#a855f7" strokeWidth={2} dot={false} activeDot={{ r: 4 }} connectNulls />
                 <Line type="monotone" dataKey="hrv" name="HRV (ms)" stroke="#00ff88" strokeWidth={2} dot={false} activeDot={{ r: 4 }} connectNulls />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="glass p-5 anim-fade d4">
-          <h3 className="font-bold text-sm mb-4">Resting Heart Rate</h3>
-          <div className="chart-fluid" style={{ height: 200, '--chart-accent': 'rgba(255,59,59,0.4)' } as any}>
+        <div className="glass p-4 md:p-5 anim-fade d4">
+          <h3 className="font-bold text-sm mb-3">Resting Heart Rate</h3>
+          <div className="chart-fluid h-[160px] md:h-[200px]" style={{ '--chart-accent': 'rgba(255,59,59,0.4)' } as any}>
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <AreaChart data={heartData}>
                 <defs>
@@ -129,7 +126,7 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
                   </linearGradient>
                 </defs>
                 <Tooltip cursor={<CrosshairCursor />} content={<FloatingTooltip unit="bpm" color="#ff3b3b" />} isAnimationActive={false} />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} interval="preserveStartEnd" />
                 <Area type="monotone" dataKey="rhr" stroke="#ff3b3b" strokeWidth={2.5} fill="url(#gRhr)" activeDot={{ r: 5, stroke: '#fff', strokeWidth: 2 }} />
               </AreaChart>
             </ResponsiveContainer>
@@ -137,15 +134,15 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
         </div>
       </div>
 
-      {/* Steps + Nutrition */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="glass p-5 anim-fade d5">
-          <h3 className="font-bold text-sm mb-4">Daily Steps</h3>
-          <div className="chart-fluid" style={{ height: 180 } as any}>
+      {/* Steps + Nutrition — stacked on mobile */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div className="glass p-4 md:p-5 anim-fade d5">
+          <h3 className="font-bold text-sm mb-3">Daily Steps</h3>
+          <div className="chart-fluid h-[160px] md:h-[180px]">
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <BarChart data={stepsData}>
                 <Tooltip cursor={<CrosshairCursor />} content={<FloatingTooltip unit="steps" color="#facc15" />} isAnimationActive={false} />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} interval="preserveStartEnd" />
                 <Bar dataKey="steps" radius={[4, 4, 0, 0]}>
                   {stepsData.map((d, i) => (
                     <Cell key={i} fill={(d.steps ?? 0) >= 8000 ? '#00ff88' : (d.steps ?? 0) >= 5000 ? '#facc15' : '#ff3b3b'} fillOpacity={0.6} />
@@ -155,13 +152,13 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="glass p-5 anim-fade d6">
-          <h3 className="font-bold text-sm mb-4">Daily Calories & Protein</h3>
-          <div className="chart-fluid" style={{ height: 180 } as any}>
+        <div className="glass p-4 md:p-5 anim-fade d6">
+          <h3 className="font-bold text-sm mb-3">Daily Calories & Protein</h3>
+          <div className="chart-fluid h-[160px] md:h-[180px]">
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <BarChart data={nutritionByDay}>
                 <Tooltip cursor={<CrosshairCursor />} content={<MultiTooltip />} isAnimationActive={false} />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 9, fontWeight: 700 }} interval="preserveStartEnd" />
                 <Bar dataKey="cal" name="Calories" fill="#f97316" fillOpacity={0.5} radius={[4, 4, 0, 0]} />
                 <Bar dataKey="protein" name="Protein (g)" fill="#00ff88" fillOpacity={0.7} radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -171,15 +168,15 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
       </div>
 
       {/* Workouts Log */}
-      <div className="glass p-5 anim-fade d7">
-        <h3 className="font-bold text-sm mb-4 flex items-center gap-2"><Activity size={16} style={{ color: 'var(--neon-green)' }} /> Workout Log</h3>
-        <div className="space-y-3">
+      <div className="glass p-4 md:p-5 anim-fade d7">
+        <h3 className="font-bold text-sm mb-3 flex items-center gap-2"><Activity size={16} style={{ color: 'var(--neon-green)' }} /> Workout Log</h3>
+        <div className="space-y-2">
           {data.workouts.map(w => (
             <div key={w.id} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)' }}>
-              <span className="text-2xl">{workoutEmoji(w.type)}</span>
+              <span className="text-2xl shrink-0">{workoutEmoji(w.type)}</span>
               <div className="flex-1 min-w-0">
                 <div className="font-bold text-sm capitalize">{w.type.replace(/[_+]/g, ' ')}</div>
-                <div className="text-xs text-[var(--text2)] truncate">{w.notes || 'No notes'}</div>
+                <div className="text-[11px] text-[var(--text2)] leading-tight">{w.notes || 'No notes'}</div>
               </div>
               <div className="text-right shrink-0">
                 <div className="font-mono-data text-sm font-bold">

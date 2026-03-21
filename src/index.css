@@ -4,6 +4,7 @@
 /* ═══════════════════════════════════════════════
    Life OS — Design System
    "Nike Lab meets Trading Terminal"
+   Mobile-first: 390px primary target
    ═══════════════════════════════════════════════ */
 
 :root {
@@ -169,6 +170,10 @@ body::before {
   0%, 100% { filter: drop-shadow(0 0 3px var(--glow-color, rgba(59,130,246,0.3))); }
   50% { filter: drop-shadow(0 0 8px var(--glow-color, rgba(59,130,246,0.5))); }
 }
+@keyframes scorePulse {
+  0%, 100% { filter: drop-shadow(0 0 6px var(--pulse-color, rgba(59,130,246,0.4))); }
+  50% { filter: drop-shadow(0 0 14px var(--pulse-color, rgba(59,130,246,0.6))); }
+}
 
 /* ── Animation Utilities ──────────────────────── */
 .anim-fade { animation: fadeUp .5s ease both; }
@@ -204,20 +209,35 @@ body::before {
 }
 .recharts-tooltip-wrapper { pointer-events: none !important; }
 
-/* ── Bottom Nav ───────────────────────────────── */
+/* ── Bottom Nav — 56px + safe area ────────────── */
 .mob-nav {
   display: none;
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  height: calc(56px + env(safe-area-inset-bottom));
   background: rgba(15,23,42,0.95);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--glass-border);
-  padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
+  padding: 0 4px env(safe-area-inset-bottom);
+  align-items: center;
   justify-content: space-around;
 }
 @media (max-width: 768px) { .mob-nav { display: flex; } }
 @media (min-width: 769px) { .mob-nav { display: none !important; } }
 
-.content-safe { padding-bottom: calc(70px + env(safe-area-inset-bottom)); flex: 1; display: flex; flex-direction: column; }
+/* Nav item — 44px min touch target */
+.mob-nav-item {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 2px; padding: 6px 0;
+  min-width: 44px; min-height: 44px;
+  justify-content: center;
+  border: none; background: none; cursor: pointer;
+  transition: color .15s;
+}
+.mob-nav-item:active { transform: scale(0.92); }
+
+/* Content safe area — accounts for bottom nav */
+.content-safe { padding-bottom: calc(56px + 16px + env(safe-area-inset-bottom)); flex: 1; display: flex; flex-direction: column; }
 @media (min-width: 769px) { .content-safe { padding-bottom: 2rem; } }
 
 /* ── Drag Scroll ──────────────────────────────── */
@@ -239,3 +259,41 @@ body::before {
 
 /* ── Font Utility ─────────────────────────────── */
 .font-mono-data { font-family: 'JetBrains Mono', monospace; }
+
+/* ── Form Inputs ──────────────────────────────── */
+.input-field {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text);
+  transition: border-color .15s, box-shadow .15s;
+  outline: none;
+}
+.input-field:focus {
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+.input-field::placeholder { color: var(--text3); }
+
+/* ── Submit Button ────────────────────────────── */
+.btn-submit {
+  width: 100%; padding: 14px;
+  border-radius: 16px; border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; font-size: 14px;
+  cursor: pointer;
+  transition: transform .1s, box-shadow .2s;
+  min-height: 48px;
+}
+.btn-submit:active { transform: scale(0.98); }
+
+/* ── Active nav indicator dot ─────────────────── */
+.nav-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  position: absolute; bottom: 2px; left: 50%;
+  transform: translateX(-50%);
+}
