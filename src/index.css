@@ -106,3 +106,9 @@ body {
 
 /* ── Tag / Badge ───────────────────────────── */
 .tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+
+/* ── Page-specific ─────────────────────────── */
+@media (min-width: 1024px) {
+  .top-row { grid-template-columns: 1fr 280px !important; }
+  .grid-6-inner { grid-template-columns: repeat(6, 1fr) !important; }
+}
