@@ -52,7 +52,7 @@ body::before {
     radial-gradient(circle at 80% 80%, rgba(168,85,247,0.03) 0%, transparent 50%);
 }
 
-#root { position: relative; z-index: 1; }
+#root { position: relative; z-index: 1; min-height: 100dvh; display: flex; flex-direction: column; }
 
 /* ── Scrollbar ────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -215,7 +215,7 @@ body::before {
 @media (max-width: 768px) { .mob-nav { display: flex; } }
 @media (min-width: 769px) { .mob-nav { display: none !important; } }
 
-.content-safe { padding-bottom: calc(70px + env(safe-area-inset-bottom)); }
+.content-safe { padding-bottom: calc(70px + env(safe-area-inset-bottom)); flex: 1; display: flex; flex-direction: column; }
 @media (min-width: 769px) { .content-safe { padding-bottom: 2rem; } }
 
 /* ── Drag Scroll ──────────────────────────────── */
