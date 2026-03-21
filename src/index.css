@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════
@@ -225,6 +226,14 @@ body::before {
   scrollbar-width: thin;
 }
 .drag-scroll > * { scroll-snap-align: start; }
+
+/* ── Ticker ────────────────────────────────────── */
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-ticker { animation: ticker 35s linear infinite; }
+@media (hover: hover) { .animate-ticker:hover { animation-play-state: paused; } }
 
 /* ── Font Utility ─────────────────────────────── */
 .font-mono-data { font-family: 'JetBrains Mono', monospace; }
