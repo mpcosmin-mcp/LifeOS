@@ -144,29 +144,35 @@ export default function OverviewPage({ data, onNavigate }: Props) {
 
       {/* ═══ MODULE: MONEY ═══ */}
       <Module accent="var(--green)" accentBg="rgba(0,255,136,0.03)" borderColor="rgba(0,255,136,0.08)" emoji="💰" title="Money" subtitle={`${money.daysLeft} days left`} onClick={() => onNavigate('finance')}>
+        {/* Daily Budget — HERO */}
+        <div style={{ textAlign: 'center', padding: '16px 0 20px', borderBottom: '1px solid var(--border)', marginBottom: 14 }}>
+          <div style={{ fontSize: 10, color: 'var(--t3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 6 }}>Daily Budget</div>
+          <div className="font-data" style={{ fontWeight: 800, fontSize: 52, color: money.daily < 50 ? 'var(--red)' : money.daily < 100 ? 'var(--amber)' : 'var(--green)', lineHeight: 1 }}>
+            {money.daily}<span style={{ fontSize: 18, color: 'var(--t3)', marginLeft: 4 }}>lei/day</span>
+          </div>
+          <div className="font-data" style={{ fontSize: 11, color: 'var(--t2)', marginTop: 6 }}>
+            {money.daily < 50 ? '⚠️ Critical — essential spending only' : money.daily < 100 ? 'Tight — be mindful' : '✓ On track'}
+          </div>
+        </div>
         <div className="grid-2" style={{ gap: 16 }}>
           <div>
             <div style={{ fontSize: 10, color: 'var(--t3)', marginBottom: 4, fontWeight: 600 }}>SPENT THIS MONTH</div>
-            <div className="font-data" style={{ fontWeight: 800, fontSize: 32, color: money.rem < 300 ? 'var(--red)' : 'var(--t1)', lineHeight: 1 }}>
-              {money.spent}<span style={{ fontSize: 14, color: 'var(--t3)', marginLeft: 4 }}>/ {money.avail}</span>
+            <div className="font-data" style={{ fontWeight: 800, fontSize: 28, color: money.rem < 300 ? 'var(--red)' : 'var(--t1)', lineHeight: 1 }}>
+              {money.spent}<span style={{ fontSize: 13, color: 'var(--t3)', marginLeft: 4 }}>/ {money.avail}</span>
             </div>
             <div style={{ margin: '8px 0' }}>
               <div className="bar-track" style={{ height: 6 }}>
                 <div className="bar-fill" style={{ width: `${Math.min(100, (money.spent / money.avail) * 100)}%`, background: money.rem < 300 ? 'var(--red)' : money.rem < 800 ? 'var(--amber)' : 'var(--green)' }} />
               </div>
             </div>
-            <div style={{ background: 'rgba(0,255,136,0.05)', borderRadius: 8, padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 11, color: 'var(--t2)' }}>Daily budget</span>
-              <span className="font-data" style={{ fontWeight: 800, fontSize: 18, color: money.daily < 50 ? 'var(--red)' : 'var(--green)' }}>{money.daily} lei<span style={{ fontSize: 10, color: 'var(--t3)' }}>/day</span></span>
-            </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
             <div style={{ fontSize: 10, color: 'var(--t3)', fontWeight: 600 }}>FORECAST</div>
             <Ln l="Remaining" v={`${money.rem} lei`} c={money.rem < 300 ? 'var(--red)' : 'var(--t1)'} big />
             <Ln l="Committed (7d)" v={`-${money.c7} lei`} c="var(--amber)" />
             <Ln l="Committed (month)" v={`-${money.cM} lei`} c="var(--amber)" />
             {money.vice > 50 && <Ln l="Vice spending" v={`-${Math.round(money.vice)} lei`} c="var(--red)" />}
-            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 6 }}>
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 5 }}>
               <Ln l="Free after all" v={`${money.free} lei`} c={money.free < 0 ? 'var(--red)' : 'var(--green)'} big />
             </div>
           </div>
