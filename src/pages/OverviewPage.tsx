@@ -154,26 +154,38 @@ export default function OverviewPage({ data, onNavigate }: Props) {
       <div className="panel fade d1" style={{ padding: 14 }}>
         <SectionHeader icon={<Heart size={14} />} color="var(--cyan)" title="Health" subtitle="7-day avg → target" />
         <div className="grid-kpi" style={{ marginBottom: 10 }}>
-          {health.map(m => (
-            <div key={m.k} style={{ textAlign: 'center', padding: '6px 2px' }}>
-              <div style={{ fontSize: 7, fontWeight: 700, textTransform: 'uppercase', color: 'var(--t3)', marginBottom: 3 }}>{m.l}</div>
-              <div className="font-data" style={{ fontWeight: 800, fontSize: 18, color: m.onTrack ? 'var(--green)' : 'var(--t1)', lineHeight: 1 }}>
-                {m.cur != null ? (Number.isInteger(m.tgt) && m.u !== 'kg' ? Math.round(m.cur) : m.cur.toFixed(1)) : '—'}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, marginTop: 2 }}>
-                <ArrowRight size={8} style={{ color: 'var(--t3)' }} />
-                <span className="font-data" style={{ fontSize: 9, color: m.onTrack ? 'var(--green)' : 'var(--t3)' }}>{m.tgt}{m.u}</span>
-              </div>
-              {m.weeksToTarget != null && m.weeksToTarget > 0 && (
-                <div className="font-data" style={{ fontSize: 7, color: 'var(--t3)', marginTop: 2 }}>~{m.weeksToTarget}w</div>
-              )}
-              <div style={{ margin: '3px auto 0', width: '70%' }}>
-                <div className="bar-track" style={{ height: 2 }}>
-                  <div className="bar-fill" style={{ width: `${m.onTrack ? 100 : Math.min(95, Math.max(5, m.low ? Math.max(0, (1 - (m.gap || 0) / (m.cur || 1)) * 100) : Math.min(100, ((m.cur || 0) / m.tgt) * 100)))}%`, background: m.onTrack ? 'var(--green)' : m.c }} />
+          {health.map(m => {
+            // Progress toward target:
+            // less-is-better: 100% when cur <= tgt. Progress = tgt/cur (closer to target = fuller bar)
+            // more-is-better: 100% when cur >= tgt. Progress = cur/tgt
+            let pct = 0;
+            if (m.cur != null) {
+              if (m.onTrack) pct = 100;
+              else if (m.low) pct = Math.max(5, Math.min(95, (m.tgt / m.cur) * 100));
+              else pct = Math.max(5, Math.min(95, (m.cur / m.tgt) * 100));
+            }
+            const arrow = m.low ? '↓' : '↑';
+            return (
+              <div key={m.k} style={{ textAlign: 'center', padding: '6px 2px' }}>
+                <div style={{ fontSize: 7, fontWeight: 700, textTransform: 'uppercase', color: 'var(--t3)', marginBottom: 3 }}>{m.l}</div>
+                <div className="font-data" style={{ fontWeight: 800, fontSize: 18, color: m.onTrack ? 'var(--green)' : 'var(--t1)', lineHeight: 1 }}>
+                  {m.cur != null ? (Number.isInteger(m.tgt) && m.u !== 'kg' ? Math.round(m.cur) : m.cur.toFixed(1)) : '—'}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, marginTop: 2 }}>
+                  <span style={{ fontSize: 9, color: m.onTrack ? 'var(--green)' : 'var(--t3)' }}>{arrow}</span>
+                  <span className="font-data" style={{ fontSize: 9, color: m.onTrack ? 'var(--green)' : 'var(--t3)' }}>{m.tgt}{m.u}</span>
+                </div>
+                {m.weeksToTarget != null && m.weeksToTarget > 0 && (
+                  <div className="font-data" style={{ fontSize: 7, color: 'var(--t3)', marginTop: 2 }}>~{m.weeksToTarget}w</div>
+                )}
+                <div style={{ margin: '3px auto 0', width: '70%' }}>
+                  <div className="bar-track" style={{ height: 2 }}>
+                    <div className="bar-fill" style={{ width: `${pct}%`, background: m.onTrack ? 'var(--green)' : m.c }} />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         {healthActions.length > 0 && (
           <div style={{ background: 'rgba(6,182,212,0.04)', border: '1px solid rgba(6,182,212,0.08)', borderRadius: 8, padding: 10 }}>
