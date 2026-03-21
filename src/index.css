@@ -126,10 +126,15 @@ body::before {
 .grid-main-side { display: grid; grid-template-columns: 1fr; gap: 10px; }
 @media (min-width: 1024px) { .grid-main-side { grid-template-columns: 5fr 3fr; } }
 
-/* ── Headers ───────────────────────────────── */
-.hdr-desk { display: none !important; }
+/* ── Headers & Sidebar ─────────────────────── */
 .hdr-mob { display: flex !important; }
-@media (min-width: 769px) { .hdr-desk { display: flex !important; } .hdr-mob { display: none !important; } }
+.sidebar { display: none !important; }
+.main-area { margin-left: 0; }
+@media (min-width: 1024px) {
+  .hdr-mob { display: none !important; }
+  .sidebar { display: flex !important; }
+  .main-area { margin-left: 220px; }
+}
 
 /* ── Tab Bar ───────────────────────────────── */
 .tabs {
