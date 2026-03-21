@@ -109,6 +109,7 @@ body {
 
 /* ── Page-specific ─────────────────────────── */
 @media (min-width: 1024px) {
-  .top-row { grid-template-columns: 1fr 280px !important; }
+  .row-top3 { grid-template-columns: 1fr 220px 240px !important; }
+  .row-bottom3 { grid-template-columns: 1fr 1fr 1fr !important; }
   .grid-6-inner { grid-template-columns: repeat(6, 1fr) !important; }
 }
