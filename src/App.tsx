@@ -39,17 +39,17 @@ export default function App() {
       {/* ═══ Desktop Sidebar ═══ */}
       <aside className="sidebar" style={{
         flexDirection: 'column', width: 240, minHeight: '100vh',
-        background: '#fff', borderRight: '1px solid var(--border)',
+        background: 'var(--surface)', borderRight: '1px solid var(--border)',
         position: 'fixed', top: 0, left: 0, zIndex: 40,
       }}>
         <div style={{ padding: '24px 20px 16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => go('overview')}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--blue)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 16 }}>🧬</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }} onClick={() => go('overview')}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--t1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 14, filter: 'grayscale(0.3)' }}>📓</span>
             </div>
             <div>
-              <div className="font-display" style={{ fontWeight: 700, fontSize: 16, lineHeight: 1, color: 'var(--t1)' }}>Life OS</div>
-              <div style={{ fontSize: 11, color: 'var(--t3)', marginTop: 2 }}>1% better every day</div>
+              <div className="font-display" style={{ fontWeight: 700, fontSize: 18, lineHeight: 1, color: 'var(--t1)', fontStyle: 'italic' }}>Life OS</div>
+              <div style={{ fontSize: 10, color: 'var(--t3)', marginTop: 3, letterSpacing: '0.5px' }}>1% better every day</div>
             </div>
           </div>
         </div>
@@ -59,10 +59,10 @@ export default function App() {
             return (
               <button key={n.key} onClick={() => go(n.key)} style={{
                 display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', width: '100%',
-                borderRadius: 10, border: 'none', cursor: 'pointer', marginBottom: 2, textAlign: 'left',
-                background: active ? 'var(--blue-bg)' : 'transparent',
-                color: active ? 'var(--blue)' : 'var(--t2)',
-                fontFamily: "'Satoshi', sans-serif", fontSize: 13, fontWeight: active ? 600 : 500,
+                borderRadius: 8, border: 'none', cursor: 'pointer', marginBottom: 2, textAlign: 'left',
+                background: active ? 'var(--bg3)' : 'transparent',
+                color: active ? 'var(--t1)' : 'var(--t2)',
+                fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: active ? 600 : 500,
                 transition: 'all .15s',
               }}>
                 <n.icon size={18} strokeWidth={active ? 2 : 1.5} />
@@ -71,19 +71,17 @@ export default function App() {
             );
           })}
         </nav>
-        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border)', fontSize: 11, color: 'var(--t3)' }}>
-          Updated 2x daily
+        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border)', fontSize: 10, color: 'var(--t4)', fontStyle: 'italic' }}>
+          Updated 2× daily
         </div>
       </aside>
 
       <div className="main-area" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {/* Mobile Header */}
-        <header className="hdr-mob" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--border)', background: '#fff' }}>
+        <header className="hdr-mob" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} onClick={() => go('overview')}>
-            <div style={{ width: 28, height: 28, borderRadius: 7, background: 'var(--blue)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 14 }}>🧬</span>
-            </div>
-            <span className="font-display" style={{ fontWeight: 700, fontSize: 15, color: 'var(--t1)' }}>Life OS</span>
+            <span style={{ fontSize: 16 }}>📓</span>
+            <span className="font-display" style={{ fontWeight: 700, fontSize: 17, color: 'var(--t1)', fontStyle: 'italic' }}>Life OS</span>
           </div>
           <span style={{ fontSize: 12, color: 'var(--t3)' }}>
             {new Date().toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' })}
@@ -105,7 +103,7 @@ export default function App() {
           <button key={n.key} onClick={() => go(n.key)} style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
             padding: '6px 0', minWidth: 48, background: 'none', border: 'none', cursor: 'pointer',
-            color: page === n.key ? 'var(--blue)' : 'var(--t3)', transition: 'color .15s',
+            color: page === n.key ? 'var(--t1)' : 'var(--t3)', transition: 'color .15s',
           }}>
             <n.icon size={20} strokeWidth={page === n.key ? 2.2 : 1.5} />
             <span style={{ fontSize: 9, fontWeight: 600 }}>{n.label}</span>
