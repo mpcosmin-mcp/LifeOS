@@ -107,9 +107,65 @@ body {
 /* ── Tag / Badge ───────────────────────────── */
 .tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
 
-/* ── Page-specific ─────────────────────────── */
+/* ── Overview Grid (Müller-Brockmann inspired) ── */
+.overview-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.health-pill {
+  padding: 10px 6px;
+  text-align: center;
+  border-radius: 10px;
+}
+
+/* Tablet: 2-column */
+@media (min-width: 640px) {
+  .overview-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .ov-health { grid-column: 1 / -1; }
+  .health-grid { grid-template-columns: repeat(6, 1fr); }
+}
+
+/* Desktop: 3-column grid with stretch */
 @media (min-width: 1024px) {
-  .row-top3 { grid-template-columns: 1fr 220px 240px !important; }
-  .row-bottom3 { grid-template-columns: 1fr 1fr 1fr !important; }
+  .overview-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    align-items: stretch;
+  }
+  .ov-health {
+    grid-column: 1 / -1;
+  }
+  .ov-money { grid-column: span 2; }
+  .ov-money .money-body { display: grid; grid-template-columns: auto 1fr 1fr; gap: 20px; align-items: start; }
+  .ov-nutrition { grid-column: span 1; }
+  .health-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+  }
+  .health-pill {
+    padding: 12px 8px;
+  }
+}
+
+/* ── Panel (sub-page cards) ─────────────────── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+}
+
+/* ── Page-specific ─────────────────────────── */
+.grid-6-inner { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+@media (min-width: 1024px) {
   .grid-6-inner { grid-template-columns: repeat(6, 1fr) !important; }
 }
