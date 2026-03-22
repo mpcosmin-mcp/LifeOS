@@ -20,6 +20,8 @@ const BUDGETS: Record<string, number> = {
   other: 500,
   health: 200,
   social: 200,
+  subscriptions: 595,
+  transport: 200,
 };
 
 const NEEDS = ['subscriptions', 'transport'];
@@ -103,21 +105,25 @@ export default function FinancePage({ data }: { data: LifeOSData }) {
       <div className="panel fade d1" style={{ padding: 16 }}>
         <span className="font-display" style={{ fontWeight: 600, fontSize: 12, marginBottom: 12, display: 'block', color: 'var(--t2)' }}>Reality Check</span>
 
-        {/* Cashflow bars */}
-        <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 9, color: 'var(--t3)', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Income</div>
-            <div style={{ height: 24, background: 'var(--green-bg)', borderRadius: 4, position: 'relative', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: '100%', background: 'var(--green)', opacity: 0.3, borderRadius: 4 }} />
-              <span className="font-data" style={{ position: 'absolute', right: 8, top: 4, fontSize: 12, fontWeight: 800, color: 'var(--green)' }}>{INCOME} lei</span>
-            </div>
+        {/* Cashflow — stacked bar showing where money goes */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 9, color: 'var(--t3)', fontWeight: 600, textTransform: 'uppercase', marginBottom: 6 }}>Income vs Spending Breakdown</div>
+          {/* Income bar */}
+          <div style={{ height: 28, background: 'var(--green-bg)', borderRadius: 4, position: 'relative', overflow: 'hidden', marginBottom: 6 }}>
+            <div style={{ height: '100%', width: '100%', background: 'var(--green)', opacity: 0.2, borderRadius: 4 }} />
+            <span className="font-data" style={{ position: 'absolute', left: 10, top: 6, fontSize: 11, fontWeight: 800, color: 'var(--green)' }}>Income: {INCOME} lei</span>
           </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 9, color: 'var(--t3)', fontWeight: 600, textTransform: 'uppercase', marginBottom: 4 }}>Spent (fixed + variable)</div>
-            <div style={{ height: 24, background: 'var(--bg3)', borderRadius: 4, position: 'relative', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${((FIXED_TOTAL + totalSpent) / INCOME) * 100}%`, background: (FIXED_TOTAL + totalSpent) > INCOME ? 'var(--red)' : 'var(--t2)', opacity: 0.3, borderRadius: 4 }} />
-              <span className="font-data" style={{ position: 'absolute', right: 8, top: 4, fontSize: 12, fontWeight: 800, color: 'var(--t1)' }}>{FIXED_TOTAL + totalSpent} lei</span>
-            </div>
+          {/* Stacked spending bar */}
+          <div style={{ height: 28, background: 'var(--bg3)', borderRadius: 4, position: 'relative', overflow: 'hidden', display: 'flex' }}>
+            <div style={{ width: `${(FIXED_TOTAL / INCOME) * 100}%`, height: '100%', background: 'var(--t3)', opacity: 0.3 }} />
+            <div style={{ width: `${(totalSpent / INCOME) * 100}%`, height: '100%', background: totalSpent > FLEXIBLE ? 'var(--red)' : 'var(--amber)', opacity: 0.4 }} />
+          </div>
+          <div className="font-data" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 9 }}>
+            <span style={{ color: 'var(--t3)' }}>Fixed: {FIXED_TOTAL} lei</span>
+            <span style={{ color: 'var(--t2)' }}>Variable: {totalSpent} lei</span>
+            <span style={{ color: (FIXED_TOTAL + totalSpent) > INCOME ? 'var(--red)' : 'var(--green)', fontWeight: 700 }}>
+              {INCOME - FIXED_TOTAL - totalSpent >= 0 ? '+' : ''}{INCOME - FIXED_TOTAL - totalSpent} lei free
+            </span>
           </div>
         </div>
 
@@ -164,7 +170,7 @@ export default function FinancePage({ data }: { data: LifeOSData }) {
       <div className="panel fade d2" style={{ padding: 16 }}>
         <span className="font-display" style={{ fontWeight: 600, fontSize: 12, marginBottom: 10, display: 'block', color: 'var(--t2)' }}>Budget vs Reality</span>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {byCat.filter(c => c.n !== 'subscriptions').map(c => {
+          {byCat.map(c => {
             const budget = BUDGETS[c.n] || 300;
             const spentPct = (c.v / budget) * 100;
             const overpace = spentPct > timePct;
