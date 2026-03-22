@@ -197,19 +197,41 @@ export default function OverviewPage({ data, onNavigate }: Props) {
   return (
     <div className="overview-grid">
 
-      {/* ═══ 1. STATUS BANNER — The Daily Protocol ═══ */}
-      <section className="card fade ov-health" style={{ padding: '16px 20px', borderLeft: `4px solid ${bc.border}`, background: bc.bg }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+      {/* ═══ ROW 1: STATUS BANNER — full width ═══ */}
+      <section className="card fade ov-banner" style={{ padding: '16px 20px', borderLeft: `4px solid ${bc.border}`, background: bc.bg }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
           {diagnosis.level === 'red' ? <AlertTriangle size={18} style={{ color: bc.text }} /> :
            diagnosis.level === 'amber' ? <Shield size={18} style={{ color: bc.text }} /> :
            <Zap size={18} style={{ color: bc.text }} />}
-          <div>
+          <div style={{ flex: 1 }}>
             <div className="font-display" style={{ fontSize: 15, fontWeight: 700, color: bc.text, fontStyle: 'italic' }}>
               {diagnosis.message}
             </div>
             <div style={{ fontSize: 10, color: 'var(--t3)', marginTop: 2 }}>
               HRV {diagnosis.hrv ?? '—'}ms · RHR {diagnosis.rhr ?? '—'}bpm · Sleep {diagnosis.sleep ?? '—'}
             </div>
+          </div>
+          {/* Triad inline in banner */}
+          <div style={{ display: 'flex', gap: 12, flexShrink: 0 }}>
+            {[
+              { label: 'Health', pct: triad.health, color: '#5c7a6f' },
+              { label: 'Wealth', pct: triad.wealth, color: '#8b7355' },
+              { label: 'Time', pct: triad.time, color: '#6b6e8a' },
+            ].map(t => (
+              <div key={t.label} style={{ textAlign: 'center' }}>
+                <div style={{ position: 'relative', width: 48, height: 48 }}>
+                  <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--bg3)" strokeWidth="3" />
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke={t.color} strokeWidth="3"
+                      strokeDasharray={`${t.pct} ${100 - t.pct}`} strokeLinecap="round" opacity="0.7" />
+                  </svg>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span className="font-data" style={{ fontSize: 13, fontWeight: 800, color: t.color }}>{t.pct}</span>
+                  </div>
+                </div>
+                <div style={{ fontSize: 8, fontWeight: 600, color: 'var(--t3)', textTransform: 'uppercase' }}>{t.label}</div>
+              </div>
+            ))}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -221,48 +243,13 @@ export default function OverviewPage({ data, onNavigate }: Props) {
         </div>
       </section>
 
-      {/* ═══ TRIAD SCORE ═══ */}
-      <section className="card fade d1 ov-actions" style={{ padding: '16px 20px' }}>
-        <div className="font-display" style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Triad Score</div>
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
-          {[
-            { label: 'Health', pct: triad.health, color: '#5c7a6f' },
-            { label: 'Wealth', pct: triad.wealth, color: '#8b7355' },
-            { label: 'Time', pct: triad.time, color: '#6b6e8a' },
-          ].map(t => (
-            <div key={t.label} style={{ textAlign: 'center', flex: 1 }}>
-              <div style={{ position: 'relative', width: 64, height: 64, margin: '0 auto 6px' }}>
-                <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
-                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--bg3)" strokeWidth="3" />
-                  <circle cx="18" cy="18" r="15.9" fill="none" stroke={t.color} strokeWidth="3"
-                    strokeDasharray={`${t.pct} ${100 - t.pct}`} strokeLinecap="round" opacity="0.7" />
-                </svg>
-                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span className="font-data" style={{ fontSize: 16, fontWeight: 800, color: t.color }}>{t.pct}</span>
-                </div>
-              </div>
-              <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* ═══ LEFT COLUMN: Diagnosis ═══ */}
 
-      {/* ═══ FRICTION INSIGHTS ═══ */}
-      {frictionInsights.length > 0 && (
-        <section className="card fade d2 ov-calendar" style={{ padding: '16px 20px', borderLeft: '3px solid var(--amber)' }}>
-          <div className="font-display" style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>⚡ Collision Zone</div>
-          {frictionInsights.map((insight, i) => (
-            <div key={i} style={{ fontSize: 11, color: 'var(--t2)', padding: '4px 0', lineHeight: 1.5, borderBottom: i < frictionInsights.length - 1 ? '1px solid var(--border)' : 'none' }}>
-              {insight}
-            </div>
-          ))}
-        </section>
-      )}
-
-      {/* ═══ NON-NEGOTIABLES ═══ */}
-      <section className="card fade d3 ov-race" style={{ padding: '16px 20px' }}>
+      {/* Collision Zone + Non-Negotiables combined */}
+      <section className="card fade d1" style={{ padding: '16px 20px' }}>
+        {/* Non-Negotiables */}
         <div className="font-display" style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>🎯 Non-Negotiables</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: frictionInsights.length > 0 ? 16 : 0 }}>
           {actions.map((a, i) => (
             <div key={i} style={{
               display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, padding: '6px 10px', borderRadius: 8,
@@ -274,10 +261,25 @@ export default function OverviewPage({ data, onNavigate }: Props) {
             </div>
           ))}
         </div>
+
+        {/* Collision Zone */}
+        {frictionInsights.length > 0 && (
+          <div style={{ paddingTop: 12, borderTop: '1px solid var(--border)' }}>
+            <div className="font-display" style={{ fontSize: 12, fontWeight: 700, marginBottom: 6, color: 'var(--amber)' }}>⚡ Collision Zone</div>
+            {frictionInsights.map((insight, i) => (
+              <div key={i} style={{ fontSize: 10, color: 'var(--t2)', padding: '3px 0', lineHeight: 1.5 }}>
+                {insight}
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* ═══ NEXT 7 DAYS — with energy tags ═══ */}
-      <section className="card fade d4 ov-money" style={{ padding: '16px 20px' }}>
+      {/* ═══ RIGHT COLUMN: Planning ═══ */}
+
+      {/* Next 7 Days + Semi-Marathon combined */}
+      <section className="card fade d2" style={{ padding: '16px 20px' }}>
+        {/* Events */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
           <div className="font-display" style={{ fontSize: 13, fontWeight: 700 }}>📅 Next 7 Days</div>
           {weekendReady && (
@@ -291,11 +293,10 @@ export default function OverviewPage({ data, onNavigate }: Props) {
           )}
         </div>
         {!events.length && <div style={{ fontSize: 11, color: 'var(--t3)', fontStyle: 'italic' }}>Clear week ✨</div>}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
           {events.map(e => {
             const days = Math.ceil((new Date(e.date).getTime() - Date.now()) / 864e5);
             const dayLabel = days <= 0 ? 'Today' : days === 1 ? 'Tomorrow' : `${days}d`;
-            // Energy tag from event type
             const energyTag = e.type === 'wedding' || e.type === 'bill' ? 'drain' : e.type === 'social' ? 'recharge' : '';
             return (
               <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, padding: '5px 0', borderBottom: '1px solid var(--border)' }}>
@@ -317,26 +318,24 @@ export default function OverviewPage({ data, onNavigate }: Props) {
             );
           })}
         </div>
-      </section>
 
-      {/* ═══ SEMI-MARATHON ═══ */}
-      <section className="card fade d5 ov-nutrition" style={{ padding: '16px 20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <div className="font-display" style={{ fontSize: 13, fontWeight: 700 }}>🏃 Semi-Marathon</div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
-            <span className="font-data" style={{ fontSize: 22, fontWeight: 800, color: 'var(--green)' }}>{race.d}</span>
-            <span style={{ fontSize: 9, color: 'var(--t3)' }}>days</span>
+        {/* Semi-Marathon — inline below events */}
+        <div style={{ paddingTop: 12, borderTop: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div className="font-display" style={{ fontSize: 12, fontWeight: 700 }}>🏃 Semi-Marathon</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
+              <span className="font-data" style={{ fontSize: 18, fontWeight: 800, color: 'var(--green)' }}>{race.d}</span>
+              <span style={{ fontSize: 9, color: 'var(--t3)' }}>days</span>
+            </div>
           </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <span className="font-data" style={{ fontSize: 16, fontWeight: 800 }}>{race.lon}<span style={{ fontSize: 9, color: 'var(--t3)' }}>km</span></span>
-          <div style={{ flex: 1 }}>
-            <div className="bar-track" style={{ height: 6 }}><div className="bar-fill" style={{ width: `${race.pct}%`, background: 'var(--green)' }} /></div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span className="font-data" style={{ fontSize: 14, fontWeight: 800 }}>{race.lon}<span style={{ fontSize: 9, color: 'var(--t3)' }}>km</span></span>
+            <div style={{ flex: 1 }}>
+              <div className="bar-track" style={{ height: 5 }}><div className="bar-fill" style={{ width: `${race.pct}%`, background: 'var(--green)' }} /></div>
+            </div>
+            <span className="font-data" style={{ fontSize: 10, color: 'var(--t3)' }}>{race.pct}%</span>
+            <span style={{ fontSize: 9, color: 'var(--t2)' }}>Next: <span className="font-data" style={{ fontWeight: 700 }}>{race.nextKm}km</span></span>
           </div>
-          <span className="font-data" style={{ fontSize: 10, color: 'var(--t3)' }}>{race.pct}%</span>
-        </div>
-        <div style={{ fontSize: 10, color: 'var(--t2)' }}>
-          Next target: <span className="font-data" style={{ fontWeight: 700 }}>{race.nextKm}km</span>
         </div>
       </section>
     </div>

@@ -171,23 +171,20 @@ body {
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;
   }
-  .ov-health { grid-column: 1 / -1; }
+  .ov-banner { grid-column: 1 / -1; }
   .health-grid { grid-template-columns: repeat(6, 1fr); }
 }
 
-/* Desktop: 3-column grid with stretch */
+/* Desktop: 2-column balanced layout */
 @media (min-width: 1024px) {
   .overview-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 16px;
-    align-items: stretch;
+    align-items: start;
   }
-  .ov-health {
-    grid-column: 1 / -1;
-  }
-  .ov-money { grid-column: span 2; }
-  .ov-money .money-body { display: grid; grid-template-columns: auto 1fr 1fr; gap: 20px; align-items: start; }
-  .ov-nutrition { grid-column: span 1; }
+  /* Row 1: Banner full width */
+  .ov-banner { grid-column: 1 / -1; }
+  /* Row 2+: 2 columns, content flows naturally */
   .health-grid {
     grid-template-columns: repeat(6, 1fr);
     gap: 10px;
@@ -195,6 +192,16 @@ body {
   .health-pill {
     padding: 12px 8px;
   }
+}
+
+/* Finance page: blind spots side by side */
+@media (max-width: 639px) {
+  .finance-blindspots { grid-template-columns: 1fr !important; }
+}
+
+/* Pressure grid responsive */
+@media (max-width: 639px) {
+  .pressure-grid { grid-template-columns: repeat(3, 1fr) !important; }
 }
 
 /* ── Panel (sub-page cards) ─────────────────── */
