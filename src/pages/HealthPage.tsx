@@ -14,15 +14,22 @@ const TGT: Record<string, { value: number; direction: 'down' | 'up'; label: stri
 };
 
 export default function HealthPage({ data }: { data: LifeOSData }) {
-  // Ink-on-paper palette — muted, warm, natural
+  // Dynamic colors: green if on target, red if not
   const metrics = [
-    { k: 'weight_kg' as const, l: 'Weight', u: 'kg', c: '#5c7a6f' },
-    { k: 'body_fat_pct' as const, l: 'Body Fat', u: '%', c: '#8b7355' },
-    { k: 'visceral_fat' as const, l: 'Visceral Fat', u: '', c: '#7a6875' },
-    { k: 'rhr' as const, l: 'RHR', u: 'bpm', c: '#9c6b5e' },
-    { k: 'hrv' as const, l: 'HRV', u: 'ms', c: '#5e7a5c' },
-    { k: 'sleep_score' as const, l: 'Sleep', u: '', c: '#6b6e8a' },
-  ];
+    { k: 'weight_kg' as const, l: 'Weight', u: 'kg', low: true },
+    { k: 'body_fat_pct' as const, l: 'Body Fat', u: '%', low: true },
+    { k: 'visceral_fat' as const, l: 'Visceral Fat', u: '', low: true },
+    { k: 'rhr' as const, l: 'RHR', u: 'bpm', low: true },
+    { k: 'hrv' as const, l: 'HRV', u: 'ms', low: false },
+    { k: 'sleep_score' as const, l: 'Sleep', u: '', low: false },
+  ].map(m => {
+    const tgt = TGT[m.k];
+    const pts = data.health.filter(h => h[m.k] != null);
+    const latestVal = pts.length ? pts[pts.length - 1][m.k] as number : null;
+    const hit = latestVal != null && tgt && (m.low ? latestVal <= tgt.value * 1.05 : latestVal >= tgt.value * 0.95);
+    const c = hit ? 'var(--green)' : 'var(--red)';
+    return { ...m, c };
+  });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
