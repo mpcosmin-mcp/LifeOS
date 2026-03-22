@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Wallet } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Wallet, ChevronDown, ChevronUp } from 'lucide-react';
 import { categoryEmoji, daysAgo, fDateShort } from '../lib/helpers';
 import type { LifeOSData, Transaction } from '../lib/types';
 
@@ -169,66 +169,23 @@ export default function FinancePage({ data }: { data: LifeOSData }) {
       {/* ═══ 2. PACING BARS — Budget vs Reality ═══ */}
       <div className="panel fade d2" style={{ padding: 16 }}>
         <span className="font-display" style={{ fontWeight: 600, fontSize: 12, marginBottom: 10, display: 'block', color: 'var(--t2)' }}>Budget vs Reality</span>
+        <ExpandableSection title="🔒 Fixed Costs" total={FIXED_TOTAL} subtitle="monthly">
+          {FIXED.map(f => (
+            <div key={f.l} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, padding: '3px 0', color: 'var(--t2)' }}>
+              <span>{f.l}</span>
+              <span className="font-data" style={{ fontWeight: 600 }}>{f.v} lei</span>
+            </div>
+          ))}
+        </ExpandableSection>
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {/* Fixed costs first */}
-          {FIXED.map(f => {
-            const spent = f.v;
-            const budget = f.v;
-            return (
-              <div key={f.l}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-                  <span style={{ fontSize: 11, display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <span>🔒</span>
-                    <span>{f.l}</span>
-                    <span style={{ fontSize: 8, color: 'var(--t3)' }}>fixed</span>
-                  </span>
-                  <span className="font-data" style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)' }}>
-                    {spent}<span style={{ color: 'var(--t3)', fontWeight: 400 }}>/{budget} lei</span>
-                  </span>
-                </div>
-                <div className="bar-track" style={{ height: 8 }}>
-                  <div className="bar-fill" style={{ width: '100%', background: 'var(--t3)', opacity: 0.3 }} />
-                </div>
-              </div>
-            );
-          })}
-          {/* Separator */}
-          <div style={{ borderTop: '1px solid var(--border)', margin: '4px 0' }} />
-          {/* Variable costs */}
           {byCat.map(c => {
             const budget = BUDGETS[c.n] || 300;
             const spentPct = (c.v / budget) * 100;
             const overpace = spentPct > timePct;
+            const catTxns = moTx.filter(t => (t.category || 'other') === c.n);
             return (
-              <div key={c.n}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-                  <span style={{ fontSize: 11, display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <span>{categoryEmoji(c.n)}</span>
-                    <span style={{ textTransform: 'capitalize' }}>{c.n}</span>
-                  </span>
-                  <span className="font-data" style={{ fontSize: 11, fontWeight: 700, color: overpace ? 'var(--red)' : 'var(--t1)' }}>
-                    {c.v}<span style={{ color: 'var(--t3)', fontWeight: 400 }}>/{budget} lei</span>
-                  </span>
-                </div>
-                <div style={{ position: 'relative' }}>
-                  <div className="bar-track" style={{ height: 8 }}>
-                    <div className="bar-fill" style={{
-                      width: `${Math.min(100, spentPct)}%`,
-                      background: overpace ? 'var(--red)' : c.v > budget * 0.8 ? 'var(--amber)' : 'var(--green)',
-                      opacity: 0.6,
-                    }} />
-                  </div>
-                  {/* Time pacing line */}
-                  <div style={{
-                    position: 'absolute', top: -2, bottom: -2,
-                    left: `${timePct}%`,
-                    width: 2, background: 'var(--t1)', borderRadius: 1, opacity: 0.4,
-                  }} />
-                </div>
-                <div style={{ fontSize: 8, color: 'var(--t3)', marginTop: 2, textAlign: 'right' }}>
-                  {overpace ? '⚠️ ahead of pace' : `${Math.round(budget - c.v)} lei remaining`}
-                </div>
-              </div>
+              <CategoryRow key={c.n} name={c.n} spent={c.v} budget={budget} overpace={overpace} spentPct={spentPct} timePct={timePct} transactions={catTxns} />
             );
           })}
           <div style={{ fontSize: 8, color: 'var(--t3)', textAlign: 'center', marginTop: 4 }}>
@@ -348,6 +305,79 @@ export default function FinancePage({ data }: { data: LifeOSData }) {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+function ExpandableSection({ title, total, subtitle, children }: { title: string; total: number; subtitle: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <div
+        onClick={() => setOpen(!open)}
+        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', padding: '6px 0', borderBottom: open ? '1px solid var(--border)' : 'none' }}
+      >
+        <span style={{ fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+          {title}
+          <span style={{ fontSize: 8, color: 'var(--t3)', fontWeight: 400 }}>{subtitle}</span>
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span className="font-data" style={{ fontSize: 11, fontWeight: 700, color: 'var(--t2)' }}>{total} lei</span>
+          {open ? <ChevronUp size={14} style={{ color: 'var(--t3)' }} /> : <ChevronDown size={14} style={{ color: 'var(--t3)' }} />}
+        </span>
+      </div>
+      {open && <div style={{ padding: '6px 0 2px 8px' }}>{children}</div>}
+    </div>
+  );
+}
+
+function CategoryRow({ name, spent, budget, overpace, spentPct, timePct, transactions }: {
+  name: string; spent: number; budget: number; overpace: boolean; spentPct: number; timePct: number; transactions: Transaction[];
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div>
+      <div onClick={() => setOpen(!open)} style={{ cursor: 'pointer' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+          <span style={{ fontSize: 11, display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span>{categoryEmoji(name)}</span>
+            <span style={{ textTransform: 'capitalize' }}>{name}</span>
+            {open ? <ChevronUp size={12} style={{ color: 'var(--t3)' }} /> : <ChevronDown size={12} style={{ color: 'var(--t3)' }} />}
+          </span>
+          <span className="font-data" style={{ fontSize: 11, fontWeight: 700, color: overpace ? 'var(--red)' : 'var(--t1)' }}>
+            {spent}<span style={{ color: 'var(--t3)', fontWeight: 400 }}>/{budget} lei</span>
+          </span>
+        </div>
+        <div style={{ position: 'relative' }}>
+          <div className="bar-track" style={{ height: 8 }}>
+            <div className="bar-fill" style={{
+              width: `${Math.min(100, spentPct)}%`,
+              background: overpace ? 'var(--red)' : spent > budget * 0.8 ? 'var(--amber)' : 'var(--green)',
+              opacity: 0.6,
+            }} />
+          </div>
+          <div style={{
+            position: 'absolute', top: -2, bottom: -2,
+            left: `${timePct}%`,
+            width: 2, background: 'var(--t1)', borderRadius: 1, opacity: 0.4,
+          }} />
+        </div>
+        <div style={{ fontSize: 8, color: 'var(--t3)', marginTop: 2, textAlign: 'right' }}>
+          {overpace ? '⚠️ ahead of pace' : `${Math.round(budget - spent)} lei remaining`}
+        </div>
+      </div>
+      {open && transactions.length > 0 && (
+        <div style={{ padding: '4px 0 6px 20px', borderLeft: '2px solid var(--border)', marginTop: 4, marginBottom: 4 }}>
+          {transactions.map(t => (
+            <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, padding: '2px 0' }}>
+              <span style={{ color: t.roi_flag === '-' ? 'var(--red)' : t.roi_flag === '+' ? 'var(--green)' : 'var(--t3)', fontWeight: 700, width: 8 }}>{t.roi_flag}</span>
+              <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--t2)' }}>{t.description}</span>
+              <span className="font-data" style={{ fontWeight: 600, flexShrink: 0 }}>{t.amount}</span>
+              <span className="font-data" style={{ color: 'var(--t3)', fontSize: 8, flexShrink: 0 }}>{fDateShort(t.date)}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
