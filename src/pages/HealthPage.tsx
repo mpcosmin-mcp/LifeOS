@@ -28,62 +28,13 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
       <h2 className="font-display fade" style={{ fontWeight: 700, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
         <span>💊</span> Health
       </h2>
-
-      {/* ── KPI Summary Row ── */}
-      <div className="panel fade" style={{ padding: 14 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }} className="health-kpi-grid">
-          {metrics.map(m => {
-            const pts = data.health.filter(h => h[m.k] != null);
-            const latest = pts.length ? pts[pts.length - 1][m.k] as number : null;
-            const tgt = TGT[m.k];
-            if (!tgt || latest == null) return null;
-            const hit = tgt.direction === 'down' ? latest <= tgt.value * 1.05 : latest >= tgt.value * 0.95;
-            const pct = tgt.direction === 'down'
-              ? Math.min(100, Math.max(5, (tgt.value / latest) * 100))
-              : Math.min(100, Math.max(5, (latest / tgt.value) * 100));
-            const diff = latest - tgt.value;
-            const diffStr = tgt.direction === 'down'
-              ? (diff > 0 ? `${diff > 0 ? '+' : ''}${diff.toFixed(m.u === 'kg' ? 1 : 0)} to go` : '✓ on target')
-              : (diff < 0 ? `${Math.abs(diff).toFixed(0)} to go` : '✓ on target');
-
-            return (
-              <div key={m.k} style={{
-                padding: '10px 12px', borderRadius: 8, textAlign: 'center',
-                background: hit ? 'var(--green-bg)' : 'var(--surface)',
-                border: `1px solid ${hit ? 'var(--green)' : 'var(--border)'}`,
-              }}>
-                <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--t3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>
-                  {m.l}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4 }}>
-                  <span className="font-data" style={{ fontSize: 22, fontWeight: 800, color: hit ? 'var(--green)' : 'var(--t1)' }}>
-                    {m.u === 'kg' ? latest.toFixed(1) : Math.round(latest)}
-                  </span>
-                  <span style={{ fontSize: 10, color: 'var(--t3)' }}>{m.u}</span>
-                </div>
-                <div style={{ marginTop: 4 }}>
-                  <div className="bar-track" style={{ height: 4, marginBottom: 4 }}>
-                    <div className="bar-fill" style={{ width: `${pct}%`, background: hit ? 'var(--green)' : m.c }} />
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 8 }}>
-                    <span style={{ color: 'var(--t3)' }}>Target: {tgt.label}</span>
-                    <span style={{ color: hit ? 'var(--green)' : 'var(--amber)', fontWeight: 600 }}>{diffStr}</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── Charts with target lines ── */}
       {metrics.map((m, i) => {
         const pts = data.health.filter(h => h[m.k] != null).map(h => ({ d: fDateShort(h.date), v: h[m.k] as number }));
         if (!pts.length) return null;
         const latest = pts[pts.length - 1].v;
         const tgt = TGT[m.k];
 
-        // Calculate Y domain to include target line
+        // Y domain includes target line
         const values = pts.map(p => p.v);
         const minV = Math.min(...values, tgt?.value ?? Infinity);
         const maxV = Math.max(...values, tgt?.value ?? -Infinity);
@@ -128,8 +79,6 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
           </div>
         );
       })}
-
-      {/* ── Recent Workouts ── */}
       {data.workouts.length > 0 && (
         <div className="panel fade d7" style={{ padding: 14 }}>
           <span className="font-display" style={{ fontWeight: 600, fontSize: 12, marginBottom: 8, display: 'block' }}>Recent Workouts</span>
