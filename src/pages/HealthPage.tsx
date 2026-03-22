@@ -14,13 +14,14 @@ const TGT: Record<string, { value: number; direction: 'down' | 'up'; label: stri
 };
 
 export default function HealthPage({ data }: { data: LifeOSData }) {
+  // Ink-on-paper palette — muted, warm, natural
   const metrics = [
-    { k: 'weight_kg' as const, l: 'Weight', u: 'kg', c: '#06b6d4' },
-    { k: 'body_fat_pct' as const, l: 'Body Fat', u: '%', c: '#f59e0b' },
-    { k: 'visceral_fat' as const, l: 'Visceral Fat', u: '', c: '#e879f9' },
-    { k: 'rhr' as const, l: 'RHR', u: 'bpm', c: '#ff3b3b' },
-    { k: 'hrv' as const, l: 'HRV', u: 'ms', c: '#00ff88' },
-    { k: 'sleep_score' as const, l: 'Sleep', u: '', c: '#a855f7' },
+    { k: 'weight_kg' as const, l: 'Weight', u: 'kg', c: '#5c7a6f' },
+    { k: 'body_fat_pct' as const, l: 'Body Fat', u: '%', c: '#8b7355' },
+    { k: 'visceral_fat' as const, l: 'Visceral Fat', u: '', c: '#7a6875' },
+    { k: 'rhr' as const, l: 'RHR', u: 'bpm', c: '#9c6b5e' },
+    { k: 'hrv' as const, l: 'HRV', u: 'ms', c: '#5e7a5c' },
+    { k: 'sleep_score' as const, l: 'Sleep', u: '', c: '#6b6e8a' },
   ];
 
   return (
@@ -63,11 +64,11 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
                 </div>
                 <div style={{ marginTop: 4 }}>
                   <div className="bar-track" style={{ height: 4, marginBottom: 4 }}>
-                    <div className="bar-fill" style={{ width: `${pct}%`, background: hit ? 'var(--green)' : m.c }} />
+                    <div className="bar-fill" style={{ width: `${pct}%`, background: hit ? 'var(--green)' : m.c, opacity: 0.7 }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 8 }}>
                     <span style={{ color: 'var(--t3)' }}>Target: {tgt.label}</span>
-                    <span style={{ color: hit ? 'var(--green)' : 'var(--amber)', fontWeight: 600 }}>{diffStr}</span>
+                    <span style={{ color: hit ? 'var(--green)' : 'var(--t2)', fontWeight: 600 }}>{diffStr}</span>
                   </div>
                 </div>
               </div>
@@ -113,10 +114,10 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
                   {tgt && (
                     <ReferenceLine
                       y={tgt.value}
-                      stroke="var(--green)"
-                      strokeDasharray="4 4"
-                      strokeWidth={1.5}
-                      label={{ value: `Target ${tgt.label}`, position: 'right', fill: 'var(--green)', fontSize: 9, fontWeight: 600 }}
+                      stroke="#7a9a6b"
+                      strokeDasharray="6 3"
+                      strokeWidth={1}
+                      label={{ value: `Target ${tgt.label}`, position: 'right', fill: '#7a9a6b', fontSize: 8, fontWeight: 600 }}
                     />
                   )}
                   <Area type="monotone" dataKey="v" stroke={m.c} strokeWidth={2} fill={`url(#h${m.k})`} activeDot={{ r: 4, stroke: '#fff', strokeWidth: 2 }} />
@@ -139,8 +140,8 @@ export default function HealthPage({ data }: { data: LifeOSData }) {
                 <span>{workoutEmoji(w.type)}</span>
                 <span style={{ flex: 1, textTransform: 'capitalize' }}>{w.type.replace(/[_+]/g, ' ')}</span>
                 {w.duration_min && <span className="font-data" style={{ color: 'var(--t2)' }}>{Math.round(w.duration_min)}m</span>}
-                {w.distance_km && <span className="font-data" style={{ color: 'var(--cyan, #0891b2)' }}>{w.distance_km}km</span>}
-                {w.heart_rate_avg && <span className="font-data" style={{ color: w.heart_rate_avg > 160 ? 'var(--red)' : 'var(--green)' }}>♥{w.heart_rate_avg}</span>}
+                {w.distance_km && <span className="font-data" style={{ color: 'var(--t2)' }}>{w.distance_km}km</span>}
+                {w.heart_rate_avg && <span className="font-data" style={{ color: w.heart_rate_avg > 160 ? 'var(--red)' : 'var(--t2)' }}>♥{w.heart_rate_avg}</span>}
                 <span className="font-data" style={{ color: 'var(--t3)', fontSize: 9 }}>{fDateShort(w.date)}</span>
               </div>
             ))}
