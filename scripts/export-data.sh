@@ -47,6 +47,8 @@ data = {
         "triggers": query(DBS["psychology"], "SELECT * FROM trigger_log ORDER BY date DESC"),
         "sessions": query(DBS["psychology"], "SELECT * FROM reconsolidation_sessions ORDER BY date DESC"),
         "homework": query(DBS["psychology"], "SELECT * FROM homework_log ORDER BY date DESC"),
+        "journal": query(DBS["psychology"], "SELECT * FROM journal_entries ORDER BY date DESC"),
+        "insights": query(DBS["psychology"], "SELECT * FROM journal_insights ORDER BY date_generated DESC"),
     },
     "lastUpdated": datetime.utcnow().isoformat() + "Z",
 }
@@ -96,6 +98,8 @@ data = {
         'triggers': query(DBS['psychology'], 'SELECT * FROM trigger_log ORDER BY date DESC'),
         'sessions': query(DBS['psychology'], 'SELECT * FROM reconsolidation_sessions ORDER BY date DESC'),
         'homework': query(DBS['psychology'], 'SELECT * FROM homework_log ORDER BY date DESC'),
+        'journal': query(DBS['psychology'], 'SELECT * FROM journal_entries ORDER BY date DESC'),
+        'insights': query(DBS['psychology'], 'SELECT * FROM journal_insights ORDER BY date_generated DESC'),
     },
     'lastUpdated': datetime.utcnow().isoformat() + 'Z',
 }
