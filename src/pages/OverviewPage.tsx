@@ -25,30 +25,41 @@ export default function OverviewPage({ data, onNavigate }: Props) {
   // ══ STATUS BANNER — algorithmic diagnosis ══
   const diagnosis = useMemo(() => {
     const h = data.health;
-    const hrv = avg(h, 'hrv', 3);
-    const rhr = avg(h, 'rhr', 3);
-    const sleep = avg(h, 'sleep_score', 3);
+    // Look back up to 7 days to find recent data
+    const hrv = avg(h, 'hrv', 7);
+    const rhr = avg(h, 'rhr', 7);
+    const sleep = avg(h, 'sleep_score', 7);
+
+    // Check data freshness — latest date with any of these metrics
+    const latestWithData = [...h].reverse().find(x => x.sleep_score != null || x.hrv != null || x.rhr != null);
+    const dataAge = latestWithData ? daysAgo(latestWithData.date) : 999;
+    const stale = dataAge > 2;
 
     // Determine system state
     let level: 'red' | 'amber' | 'green' = 'green';
     let message = '';
     let protocol: string[] = [];
 
-    if ((hrv && hrv < 35) || (sleep && sleep < 50)) {
+    if (stale && !hrv && !sleep) {
+      // No recent data at all — can't diagnose
+      level = 'amber';
+      message = `Date lipsă — ultimul sync: ${dataAge > 30 ? '30+' : dataAge} zile în urmă. Verifică Garmin sync.`;
+      protocol = ['Sync Garmin', 'Presupune recuperare', 'Fără decizii riscante'];
+    } else if ((hrv && hrv < 35) || (sleep && sleep < 50)) {
       level = 'red';
       message = 'Sistem nervos suprasolicitat. Protocol de recuperare azi.';
       protocol = ['Fără decizii financiare majore', 'Fără antrenamente intense', 'Somn înainte de 22:00', 'Hidratare 3L+'];
     } else if ((hrv && hrv < 45) || (sleep && sleep < 60) || (rhr && rhr > 65)) {
       level = 'amber';
-      message = 'Recuperare parțială. Zi ușoară cu focus pe basics.';
+      message = stale ? `Date vechi (${dataAge}d). Ultimele: recuperare parțială.` : 'Recuperare parțială. Zi ușoară cu focus pe basics.';
       protocol = ['Antrenament moderat OK', 'Prioritizează somnul', 'Mâncare reală, nu sandvișuri'];
     } else {
       level = 'green';
-      message = 'Sistem în parametri. Go mode.';
-      protocol = ['Antrenament intens OK', 'Zi de execuție', 'Push boundaries'];
+      message = stale ? `Sistem OK (date de ${dataAge}d ago). Sync Garmin pt acuratețe.` : 'Sistem în parametri. Go mode.';
+      protocol = stale ? ['Sync Garmin', 'Antrenament OK', 'Zi de execuție'] : ['Antrenament intens OK', 'Zi de execuție', 'Push boundaries'];
     }
 
-    return { level, message, protocol, hrv, rhr, sleep };
+    return { level, message, protocol, hrv, rhr, sleep, dataAge, stale };
   }, [data]);
 
   // ══ TRIAD SCORE — Health, Wealth, Time ══
@@ -209,6 +220,7 @@ export default function OverviewPage({ data, onNavigate }: Props) {
             </div>
             <div style={{ fontSize: 10, color: 'var(--t3)', marginTop: 2 }}>
               HRV {diagnosis.hrv ?? '—'}ms · RHR {diagnosis.rhr ?? '—'}bpm · Sleep {diagnosis.sleep ?? '—'}
+              {diagnosis.stale && <span style={{ color: 'var(--amber)', marginLeft: 6 }}>· ⚠ {diagnosis.dataAge}d old</span>}
             </div>
           </div>
           {/* Triad inline in banner */}
