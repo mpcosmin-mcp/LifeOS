@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Brain, BookOpen, Lightbulb, AlertTriangle, TrendingUp, Eye, Zap, Target } from 'lucide-react';
+import { Sensitive } from '../lib/privacy';
 import { fDateShort } from '../lib/helpers';
 import type { LifeOSData, JournalInsight } from '../lib/types';
 
@@ -181,6 +182,7 @@ export default function MindPage({ data }: { data: LifeOSData }) {
         </div>
       </div>
 
+      <Sensitive type="mind">
       {/* ── Overall Diagnosis + 1% Action ── */}
       {journalState && (
         <div className="panel fade d1" style={{ padding: 16 }}>
@@ -351,6 +353,7 @@ export default function MindPage({ data }: { data: LifeOSData }) {
           </div>
         </div>
       )}
+      </Sensitive>
     </div>
   );
 }

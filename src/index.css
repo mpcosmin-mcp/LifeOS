@@ -212,6 +212,35 @@ body {
   box-shadow: var(--shadow);
 }
 
+/* ── Privacy blur ──────────────────────────── */
+.sensitive-blur {
+  filter: blur(8px);
+  user-select: none;
+  transition: filter .3s ease;
+}
+.sensitive-blur:hover {
+  filter: blur(5px);
+}
+.sensitive-blur::after {
+  content: '👁 tap to reveal';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--t3);
+  font-weight: 600;
+  background: rgba(245, 240, 232, 0.3);
+  border-radius: var(--r);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.sensitive-blur:hover::after {
+  opacity: 1;
+}
+
 /* ── Page-specific ─────────────────────────── */
 .grid-6-inner { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 @media (min-width: 1024px) {

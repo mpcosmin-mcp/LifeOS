@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Wallet, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sensitive } from '../lib/privacy';
 import { categoryEmoji, daysAgo, fDateShort } from '../lib/helpers';
 import type { LifeOSData, Transaction } from '../lib/types';
 
@@ -101,6 +102,7 @@ export default function FinancePage({ data }: { data: LifeOSData }) {
         <Wallet size={20} style={{ color: 'var(--green)' }} /> Finance
       </h2>
 
+      <Sensitive type="finance">
       {/* ── Pattern Finder + 1% Action ── */}
       <FinanceDiagnosis moTx={moTx} totalSpent={totalSpent} />
 
@@ -338,6 +340,7 @@ export default function FinancePage({ data }: { data: LifeOSData }) {
           ))}
         </div>
       </div>
+      </Sensitive>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Activity, Wallet, Calendar, Brain, LayoutDashboard, Plus } from 'lucide-react';
+import { Activity, Wallet, Calendar, Brain, LayoutDashboard, Plus, Lock, Unlock } from 'lucide-react';
+import { PrivacyProvider, usePrivacy } from './lib/privacy';
 import { fetchLifeOSData } from './lib/data';
 import type { LifeOSData, Page } from './lib/types';
 import OverviewPage from './pages/OverviewPage';
@@ -35,6 +36,7 @@ export default function App() {
   );
 
   return (
+    <PrivacyProvider>
     <div className="safe-bottom" style={{ display: 'flex', minHeight: '100vh' }}>
       {/* ═══ Desktop Sidebar ═══ */}
       <aside className="sidebar" style={{
@@ -71,6 +73,7 @@ export default function App() {
             );
           })}
         </nav>
+        <PrivacyToggles />
         <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border)', fontSize: 10, color: 'var(--t4)', fontStyle: 'italic' }}>
           Updated 2× daily
         </div>
@@ -110,6 +113,35 @@ export default function App() {
           </button>
         ))}
       </nav>
+    </div>
+    </PrivacyProvider>
+  );
+}
+
+function PrivacyToggles() {
+  const { financeLocked, mindLocked, toggleFinance, toggleMind } = usePrivacy();
+  return (
+    <div style={{ padding: '8px 20px', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <button onClick={toggleFinance} style={{
+        display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', width: '100%',
+        borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 11,
+        background: financeLocked ? 'var(--bg3)' : 'var(--green-bg)',
+        color: financeLocked ? 'var(--t2)' : 'var(--green)',
+        fontFamily: "'Inter', sans-serif",
+      }}>
+        {financeLocked ? <Lock size={13} /> : <Unlock size={13} />}
+        Finance {financeLocked ? 'locked' : 'visible'}
+      </button>
+      <button onClick={toggleMind} style={{
+        display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', width: '100%',
+        borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 11,
+        background: mindLocked ? 'var(--bg3)' : 'var(--green-bg)',
+        color: mindLocked ? 'var(--t2)' : 'var(--green)',
+        fontFamily: "'Inter', sans-serif",
+      }}>
+        {mindLocked ? <Lock size={13} /> : <Unlock size={13} />}
+        Mind {mindLocked ? 'locked' : 'visible'}
+      </button>
     </div>
   );
 }
