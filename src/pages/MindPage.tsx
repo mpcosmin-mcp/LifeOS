@@ -1,4 +1,5 @@
-import { Brain, BookOpen, Lightbulb, AlertTriangle, TrendingUp, Eye, Zap } from 'lucide-react';
+import { useMemo } from 'react';
+import { Brain, BookOpen, Lightbulb, AlertTriangle, TrendingUp, Eye, Zap, Target } from 'lucide-react';
 import { fDateShort } from '../lib/helpers';
 import type { LifeOSData, JournalInsight } from '../lib/types';
 
@@ -30,21 +31,78 @@ function InsightCard({ insight }: { insight: JournalInsight }) {
 }
 
 export default function MindPage({ data }: { data: LifeOSData }) {
-  const { triggers, sessions, journal, insights } = data.psychology;
+  const { triggers, sessions, journal, insights } = data.psychology || {};
+  const journalArr = journal || [];
+  const insightsArr = insights || [];
 
   // Group insights by type
-  const patterns = insights?.filter(i => i.insight_type === 'pattern') || [];
-  const breakthroughs = insights?.filter(i => i.insight_type === 'breakthrough') || [];
-  const warnings = insights?.filter(i => i.insight_type === 'warning') || [];
-  const observations = insights?.filter(i => i.insight_type === 'observation') || [];
-  const improvements = insights?.filter(i => i.insight_type === 'improvement') || [];
+  const patterns = insightsArr.filter(i => i.insight_type === 'pattern');
+  const breakthroughs = insightsArr.filter(i => i.insight_type === 'breakthrough');
+  const warnings = insightsArr.filter(i => i.insight_type === 'warning');
+  const observations = insightsArr.filter(i => i.insight_type === 'observation');
+  const improvements = insightsArr.filter(i => i.insight_type === 'improvement');
 
   // Stats
-  const totalEntries = journal?.length || 0;
-  const uniqueMoods = [...new Set((journal || []).map(j => j.mood).filter(Boolean))];
-  const allTags = (journal || []).flatMap(j => (j.tags || '').split(',').map(t => t.trim())).filter(Boolean);
+  const totalEntries = journalArr.length;
+  const allTags = journalArr.flatMap(j => (j.tags || '').split(',').map(t => t.trim())).filter(Boolean);
   const tagCounts = allTags.reduce((acc, t) => { acc[t] = (acc[t] || 0) + 1; return acc; }, {} as Record<string, number>);
   const topTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+
+  // 1% Better Action — derived from latest journal + patterns
+  const dailyAction = useMemo(() => {
+    // Priority: warnings > patterns > improvements
+    const latestJournal = journalArr[0]; // most recent (DESC order)
+    const latestMood = latestJournal?.mood || '';
+    const latestTags = (latestJournal?.tags || '').split(',').map(t => t.trim());
+
+    // Rules based on recurring tags and patterns
+    const rules: { condition: () => boolean; action: string; source: string }[] = [
+      {
+        condition: () => latestTags.includes('vice') || latestTags.includes('vice-loop') || tagCounts['vice'] >= 2,
+        action: '20 min rule: nu te așeza când ajungi acasă. Duș sau plimbare ÎNAINTE de orice ecran.',
+        source: 'Pattern: Vice loop 18-22h',
+      },
+      {
+        condition: () => latestTags.includes('overwhelm') || latestTags.includes('physical-mess'),
+        action: 'Un singur lucru fizic. Nu plan complet. Alege cel mai mic: o haină, un pahar, o crămă.',
+        source: 'Pattern: Dezordine → paralizie',
+      },
+      {
+        condition: () => latestTags.includes('nutrition-fail') || latestTags.includes('underfed') || tagCounts['nutrition-fail'] >= 1,
+        action: 'Proteină la mic dejun: 4 ouă + iaurt grecesc = 44g. Non-negociabil.',
+        source: 'Pattern: Nutriție sub target',
+      },
+      {
+        condition: () => latestTags.includes('digital-detox') || latestTags.includes('attention'),
+        action: '30 min fără telefon. Lasă-l într-o altă cameră. Doar tu și gândurile tale.',
+        source: 'Pattern: Digital consumption ca self-medication',
+      },
+      {
+        condition: () => latestMood.includes('overwhelm') || latestMood.includes('absent') || latestMood.includes('obosit'),
+        action: 'Plimbare 15 min afară. Fără căști, fără telefon. Doar pași și aer.',
+        source: 'Mood: ' + latestMood,
+      },
+      {
+        condition: () => latestTags.includes('awareness') || latestTags.includes('clarity'),
+        action: 'Scrie 3 lucruri concrete pentru care ești recunoscător azi. Nu abstracte — concrete.',
+        source: 'Breakthrough: Awareness crește',
+      },
+      {
+        condition: () => tagCounts['self-healing'] >= 1 || latestTags.includes('self-healing'),
+        action: 'Stai 2 min cu ochii închiși. Respiră. Observă ce simți în corp, fără să judeci.',
+        source: 'Intenție: Self-healing',
+      },
+    ];
+
+    // Find first matching rule
+    const match = rules.find(r => r.condition());
+    if (match) return match;
+
+    // Fallback: based on most common warning/pattern
+    if (warnings.length > 0) return { action: warnings[0].content.split('.')[0] + '.', source: 'Warning activ' };
+    if (patterns.length > 0) return { action: 'Recitește ultimul pattern identificat și alege UN pas mic contra lui.', source: 'Patterns active: ' + patterns.length };
+    return { action: 'Scrie un jurnal de 3 rânduri despre cum te simți acum.', source: 'Default: journaling' };
+  }, [journalArr, insightsArr, tagCounts, warnings, patterns]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -71,6 +129,20 @@ export default function MindPage({ data }: { data: LifeOSData }) {
             <div className="font-data" style={{ fontSize: 22, fontWeight: 700, color: 'var(--red)' }}>{warnings.length}</div>
             <div style={{ fontSize: 9, color: 'var(--t3)' }}>Warnings</div>
           </div>
+        </div>
+      </div>
+
+      {/* ── 1% Better Action ── */}
+      <div className="panel fade d1" style={{ padding: 16, borderLeft: '4px solid var(--green)', background: 'var(--green-bg)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <Target size={16} style={{ color: 'var(--green)' }} />
+          <span className="font-display" style={{ fontWeight: 700, fontSize: 13, color: 'var(--green)' }}>1% Better Today</span>
+        </div>
+        <div style={{ fontSize: 13, color: 'var(--t1)', lineHeight: 1.6, fontWeight: 500 }}>
+          {dailyAction.action}
+        </div>
+        <div style={{ fontSize: 9, color: 'var(--t3)', marginTop: 6, fontStyle: 'italic' }}>
+          Based on: {dailyAction.source}
         </div>
       </div>
 
