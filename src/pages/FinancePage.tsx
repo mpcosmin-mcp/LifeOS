@@ -105,43 +105,57 @@ export default function FinancePage({ data }: { data: LifeOSData }) {
       <div className="panel fade d1" style={{ padding: 16 }}>
         <span className="font-display" style={{ fontWeight: 600, fontSize: 12, marginBottom: 12, display: 'block', color: 'var(--t2)' }}>Reality Check</span>
 
-        {/* Cashflow — single stacked horizontal bar */}
-        {(() => {
-          const remaining = INCOME - FIXED_TOTAL - totalSpent;
-          const fixedPct = (FIXED_TOTAL / INCOME) * 100;
-          const varPct = (totalSpent / INCOME) * 100;
-          const remPct = Math.max(0, (remaining / INCOME) * 100);
-          const overPct = remaining < 0 ? (Math.abs(remaining) / INCOME) * 100 : 0;
-          return (
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 9, color: 'var(--t3)', fontWeight: 600, textTransform: 'uppercase', marginBottom: 6, letterSpacing: '0.5px' }}>Cashflow Breakdown</div>
-              <div style={{ height: 32, borderRadius: 6, display: 'flex', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                <div style={{ width: `${fixedPct}%`, background: '#9c8e7c', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 40 }}>
-                  <span className="font-data" style={{ fontSize: 9, fontWeight: 700, color: '#fff' }}>{FIXED_TOTAL}</span>
-                </div>
-                <div style={{ width: `${varPct}%`, background: '#8b7355', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 40 }}>
-                  <span className="font-data" style={{ fontSize: 9, fontWeight: 700, color: '#fff' }}>{totalSpent}</span>
-                </div>
-                {remaining >= 0 ? (
-                  <div style={{ width: `${remPct}%`, background: 'var(--green)', opacity: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {remPct > 5 && <span className="font-data" style={{ fontSize: 9, fontWeight: 700, color: '#fff' }}>{remaining}</span>}
-                  </div>
-                ) : (
-                  <div style={{ width: `${overPct}%`, background: 'var(--red)', opacity: 0.6, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 30 }}>
-                    <span className="font-data" style={{ fontSize: 9, fontWeight: 700, color: '#fff' }}>{remaining}</span>
-                  </div>
-                )}
+        {/* Cashflow funnel: Income → Real Income → Remaining */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {/* Income */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--green)' }}>💰 Income</span>
+                <span className="font-data" style={{ fontSize: 13, fontWeight: 800, color: 'var(--green)' }}>{INCOME} lei</span>
               </div>
-              <div className="font-data" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 9 }}>
-                <span style={{ color: '#9c8e7c' }}>🔒 Fixed {FIXED_TOTAL}</span>
-                <span style={{ color: '#8b7355' }}>📦 Spent {totalSpent}</span>
-                <span style={{ color: remaining >= 0 ? 'var(--green)' : 'var(--red)', fontWeight: 700 }}>
-                  {remaining >= 0 ? '✅' : '🔴'} {remaining} lei
-                </span>
+              <div style={{ height: 10, background: 'var(--green)', opacity: 0.25, borderRadius: 4 }} />
+            </div>
+
+            {/* Fixed costs arrow */}
+            <div style={{ fontSize: 9, color: 'var(--t3)', textAlign: 'center' }}>
+              − Fixed Costs: {FIXED_TOTAL} lei
+            </div>
+
+            {/* Real Income */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--amber)' }}>🟡 Real Income</span>
+                <span className="font-data" style={{ fontSize: 13, fontWeight: 800, color: 'var(--amber)' }}>{INCOME - FIXED_TOTAL} lei</span>
+              </div>
+              <div style={{ height: 10, borderRadius: 4, background: 'var(--bg3)', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${((INCOME - FIXED_TOTAL) / INCOME) * 100}%`, background: 'var(--amber)', opacity: 0.35, borderRadius: 4 }} />
               </div>
             </div>
-          );
-        })()}
+
+            {/* Variable spending arrow */}
+            <div style={{ fontSize: 9, color: 'var(--t3)', textAlign: 'center' }}>
+              − Variable Spending: {totalSpent} lei
+            </div>
+
+            {/* Remaining */}
+            {(() => {
+              const remaining = INCOME - FIXED_TOTAL - totalSpent;
+              const remainColor = remaining >= 0 ? 'var(--green)' : 'var(--red)';
+              return (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: remainColor }}>{remaining >= 0 ? '✅' : '🔴'} Remaining</span>
+                    <span className="font-data" style={{ fontSize: 13, fontWeight: 800, color: remainColor }}>{remaining} lei</span>
+                  </div>
+                  <div style={{ height: 10, borderRadius: 4, background: 'var(--bg3)', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${Math.max(0, (remaining / INCOME) * 100)}%`, background: remainColor, opacity: 0.35, borderRadius: 4 }} />
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
 
         {/* Savings rate gauge */}
         <div style={{ textAlign: 'center', padding: '8px 0', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', marginBottom: 12 }}>
