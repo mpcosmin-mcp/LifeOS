@@ -170,6 +170,31 @@ export default function FinancePage({ data }: { data: LifeOSData }) {
       <div className="panel fade d2" style={{ padding: 16 }}>
         <span className="font-display" style={{ fontWeight: 600, fontSize: 12, marginBottom: 10, display: 'block', color: 'var(--t2)' }}>Budget vs Reality</span>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {/* Fixed costs first */}
+          {FIXED.map(f => {
+            const spent = f.v;
+            const budget = f.v;
+            return (
+              <div key={f.l}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+                  <span style={{ fontSize: 11, display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <span>🔒</span>
+                    <span>{f.l}</span>
+                    <span style={{ fontSize: 8, color: 'var(--t3)' }}>fixed</span>
+                  </span>
+                  <span className="font-data" style={{ fontSize: 11, fontWeight: 700, color: 'var(--t3)' }}>
+                    {spent}<span style={{ color: 'var(--t3)', fontWeight: 400 }}>/{budget} lei</span>
+                  </span>
+                </div>
+                <div className="bar-track" style={{ height: 8 }}>
+                  <div className="bar-fill" style={{ width: '100%', background: 'var(--t3)', opacity: 0.3 }} />
+                </div>
+              </div>
+            );
+          })}
+          {/* Separator */}
+          <div style={{ borderTop: '1px solid var(--border)', margin: '4px 0' }} />
+          {/* Variable costs */}
           {byCat.map(c => {
             const budget = BUDGETS[c.n] || 300;
             const spentPct = (c.v / budget) * 100;
