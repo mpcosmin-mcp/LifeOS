@@ -76,6 +76,8 @@ function getAllData() {
       triggers: qRows('psychology', 'SELECT * FROM trigger_log ORDER BY date DESC'),
       sessions: qRows('psychology', 'SELECT * FROM reconsolidation_sessions ORDER BY date DESC'),
       homework: qRows('psychology', 'SELECT * FROM homework_log ORDER BY date DESC'),
+      journal: qRows('psychology', 'SELECT * FROM journal_entries ORDER BY date DESC'),
+      insights: qRows('psychology', 'SELECT * FROM journal_insights ORDER BY date_generated DESC'),
     },
     lastUpdated: new Date().toISOString(),
   };

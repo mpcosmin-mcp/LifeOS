@@ -119,6 +119,26 @@ export interface ReconsolidationSession {
   notes: string | null;
 }
 
+// ── Journal ──
+export interface JournalEntry {
+  id: number;
+  date: string;
+  mood: string | null;
+  energy: string | null;
+  raw_text: string;
+  tags: string | null;
+  created_at: string;
+}
+
+export interface JournalInsight {
+  id: number;
+  date_generated: string;
+  insight_type: 'pattern' | 'observation' | 'breakthrough' | 'improvement' | 'warning';
+  content: string;
+  source_dates: string | null;
+  created_at: string;
+}
+
 // ── Unified Response ──
 export interface LifeOSData {
   health: HealthMetric[];
@@ -130,6 +150,8 @@ export interface LifeOSData {
     triggers: TriggerEntry[];
     sessions: ReconsolidationSession[];
     homework: any[];
+    journal: JournalEntry[];
+    insights: JournalInsight[];
   };
   lastUpdated: string;
 }

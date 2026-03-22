@@ -38,6 +38,6 @@ const EMPTY_DATA: LifeOSData = {
   workouts: [],
   transactions: [],
   events: [],
-  psychology: { triggers: [], sessions: [], homework: [] },
+  psychology: { triggers: [], sessions: [], homework: [], journal: [], insights: [] },
   lastUpdated: new Date().toISOString(),
 };
