@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Calendar, AlertTriangle } from 'lucide-react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { categoryEmoji, fDateShort, daysAgo } from '../lib/helpers';
 import type { LifeOSData } from '../lib/types';
 
@@ -78,6 +79,9 @@ export default function CalendarPage({ data }: { data: LifeOSData }) {
       <h2 className="font-display fade" style={{ fontWeight: 700, fontSize: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
         <Calendar size={20} style={{ color: 'var(--purple)' }} /> Time & Wealth
       </h2>
+
+      {/* ── Pattern Finder + 1% Action ── */}
+      <EventsDiagnosis data={data} />
 
       {/* ═══ 1. NEXT 7 DAYS — Execution Mode ═══ */}
       <div className="panel fade d1" style={{ padding: 16 }}>
@@ -242,6 +246,74 @@ export default function CalendarPage({ data }: { data: LifeOSData }) {
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function EventsDiagnosis({ data }: { data: LifeOSData }) {
+  const diagnosis = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const upcoming = data.events.filter(e => e.date >= today);
+    const in30 = new Date(Date.now() + 30 * 864e5).toISOString().split('T')[0];
+    const next30 = upcoming.filter(e => e.date <= in30);
+    const patterns: string[] = [];
+
+    // Cost pressure
+    const cost30 = next30.reduce((s, e) => s + (e.cost || 0), 0);
+    if (cost30 > 5000) patterns.push(`${cost30} lei committed în 30 zile. Presiune financiară ridicată — pregătește cash flow.`);
+
+    // Event density
+    if (next30.length > 10) patterns.push(`${next30.length} events în 30 zile. Calendar dens — protejează-ți white space.`);
+
+    // Social tax
+    const socialEvents = upcoming.filter(e => ['wedding', 'birthday', 'nameday', 'social'].includes(e.type));
+    const socialCost = socialEvents.reduce((s, e) => s + (e.cost || 0), 0);
+    if (socialCost > 1000) patterns.push(`Social tax: ${socialCost} lei în obligații sociale. Bugetează-le acum, nu atunci.`);
+
+    // Drain events
+    const drains = next30.filter(e => e.type === 'bill' || e.type === 'wedding');
+    if (drains.length > 5) patterns.push(`${drains.length} drain events în 30 zile. Planifică zile de recharge între ele.`);
+
+    // Warning months ahead
+    const monthCosts = new Map<string, number>();
+    upcoming.forEach(e => {
+      const mo = e.date.substring(0, 7);
+      monthCosts.set(mo, (monthCosts.get(mo) || 0) + (e.cost || 0));
+    });
+    const hotMonths = [...monthCosts.entries()].filter(([, c]) => c > 5000).map(([m]) => new Date(m + '-01').toLocaleString('ro-RO', { month: 'short' }));
+    if (hotMonths.length > 0) patterns.push(`Luni fierbinți: ${hotMonths.join(', ')}. Pune deoparte bani din timp.`);
+
+    // 1% Action
+    let action = '';
+    if (cost30 > 5000) action = 'Fă o listă cu toate costurile din luna care vine. Blochează sumele în cont acum — nu atunci.';
+    else if (socialCost > 500) action = 'Alege UN cadou pe care îl poți pregăti azi pt următorul event social. Mai devreme = mai ieftin + mai personal.';
+    else if (next30.length > 8) action = 'Blochează o seară liberă săptămâna asta — fără obligații, fără ecrane. Calendar dens cere pauze planificate.';
+    else action = 'Calendar curat. Folosește spațiul liber pt un proiect personal — nu lăsa timpul gol să se umple cu urgențe false.';
+
+    return { patterns, action };
+  }, [data]);
+
+  return (
+    <div className="panel fade" style={{ padding: 14, marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <span>🔍</span>
+        <span className="font-display" style={{ fontWeight: 700, fontSize: 13 }}>Time Patterns</span>
+      </div>
+      {diagnosis.patterns.length > 0 ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
+          {diagnosis.patterns.map((p, i) => (
+            <div key={i} style={{ fontSize: 10, color: 'var(--t2)', lineHeight: 1.5, paddingLeft: 8, borderLeft: '2px solid var(--amber)' }}>
+              {p}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{ fontSize: 10, color: 'var(--t3)', marginBottom: 12, fontStyle: 'italic' }}>Calendar balanced ✨</div>
+      )}
+      <div style={{ padding: 10, borderRadius: 8, background: 'var(--green-bg)', borderLeft: '4px solid var(--green)' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--green)', marginBottom: 4 }}>🎯 1% Better</div>
+        <div style={{ fontSize: 11, color: 'var(--t1)', lineHeight: 1.5 }}>{diagnosis.action}</div>
       </div>
     </div>
   );

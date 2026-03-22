@@ -101,6 +101,9 @@ export default function FinancePage({ data }: { data: LifeOSData }) {
         <Wallet size={20} style={{ color: 'var(--green)' }} /> Finance
       </h2>
 
+      {/* ── Pattern Finder + 1% Action ── */}
+      <FinanceDiagnosis moTx={moTx} totalSpent={totalSpent} />
+
       {/* ═══ 1. REALITY CHECK — Hero ═══ */}
       <div className="panel fade d1" style={{ padding: 16 }}>
         <span className="font-display" style={{ fontWeight: 600, fontSize: 12, marginBottom: 12, display: 'block', color: 'var(--t2)' }}>Reality Check</span>
@@ -408,6 +411,67 @@ function CategoryRow({ name, spent, budget, overpace, spentPct, timePct, transac
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function FinanceDiagnosis({ moTx, totalSpent }: { moTx: any[]; totalSpent: number }) {
+  const diagnosis = useMemo(() => {
+    const patterns: string[] = [];
+    const FLEXIBLE = 2505;
+    
+    // Vice ratio
+    const viceSpend = moTx.filter(t => t.roi_flag === '-').reduce((s: number, t: any) => s + t.amount, 0);
+    const viceRatio = totalSpent > 0 ? Math.round((viceSpend / totalSpent) * 100) : 0;
+    if (viceRatio > 15) patterns.push(`${viceRatio}% din cheltuielile variabile = -ROI (${Math.round(viceSpend)} lei). Vice-urile consumă bugetul.`);
+
+    // Micro spending
+    const micro = moTx.filter(t => t.amount < 50);
+    const microTotal = micro.reduce((s: number, t: any) => s + t.amount, 0);
+    if (micro.length > 15) patterns.push(`${micro.length} micro-tranzacții (<50 lei) = ${Math.round(microTotal)} lei. "Factor latte" activ — banii se evaporă nesimțit.`);
+
+    // Impulse ratio
+    const impuls = moTx.filter((t: any) => t.behavior_tag === 'impuls' || t.behavior_tag === 'confort_oboseala');
+    if (impuls.length > moTx.length * 0.3) patterns.push(`${Math.round((impuls.length / moTx.length) * 100)}% tranzacții sunt impulsive. Deciziile financiare se iau pe autopilot.`);
+
+    // Over budget
+    if (totalSpent > FLEXIBLE) patterns.push(`Peste buget cu ${Math.round(totalSpent - FLEXIBLE)} lei. Freeze spending restul lunii.`);
+
+    // Weekend pattern
+    const weekendSpend = moTx.filter(t => { const d = new Date(t.date).getDay(); return d === 0 || d === 6; }).reduce((s: number, t: any) => s + t.amount, 0);
+    if (weekendSpend > totalSpent * 0.5) patterns.push(`${Math.round((weekendSpend / totalSpent) * 100)}% din cheltuieli = weekend. Vineri seara e punctul de decizie.`);
+
+    // 1% Action
+    let action = '';
+    if (totalSpent > FLEXIBLE) action = 'Zero cheltuieli variabile azi. Mâncarea din casă, fără ieșiri. Fiecare leu contează restul lunii.';
+    else if (viceRatio > 20) action = 'Înainte de orice cumpărătură non-esențială: "Asta mă aduce mai aproape de obiectiv?" Dacă nu → nu.';
+    else if (micro.length > 15) action = 'Azi: zero tranzacții sub 50 lei. Dacă nu merită 50 lei, nu merită atenția ta.';
+    else action = 'Ești pe drumul bun. Continuă — fiecare zi sub buget e o zi câștigată.';
+
+    return { patterns, action };
+  }, [moTx, totalSpent]);
+
+  return (
+    <div className="panel fade" style={{ padding: 14, marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <span>🔍</span>
+        <span className="font-display" style={{ fontWeight: 700, fontSize: 13 }}>Finance Patterns</span>
+      </div>
+      {diagnosis.patterns.length > 0 ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
+          {diagnosis.patterns.map((p: string, i: number) => (
+            <div key={i} style={{ fontSize: 10, color: 'var(--t2)', lineHeight: 1.5, paddingLeft: 8, borderLeft: '2px solid var(--amber)' }}>
+              {p}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{ fontSize: 10, color: 'var(--t3)', marginBottom: 12, fontStyle: 'italic' }}>Spending under control ✨</div>
+      )}
+      <div style={{ padding: 10, borderRadius: 8, background: 'var(--green-bg)', borderLeft: '4px solid var(--green)' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--green)', marginBottom: 4 }}>🎯 1% Better</div>
+        <div style={{ fontSize: 11, color: 'var(--t1)', lineHeight: 1.5 }}>{diagnosis.action}</div>
+      </div>
     </div>
   );
 }
