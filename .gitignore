@@ -1,5 +1,8 @@
 node_modules
-dist
 .env
 .env.local
 *.db
+
+# Personal data - NEVER commit real data
+# public/data/all.json contains mock data only
+# Real data stays on local machine via FastAPI

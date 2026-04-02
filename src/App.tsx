@@ -74,6 +74,17 @@ export default function App() {
           })}
         </nav>
         <PrivacyToggles />
+        <div style={{ padding: '8px 12px', borderTop: '1px solid var(--border)' }}>
+          <a href="/system-map.html" target="_blank" rel="noopener" style={{
+            display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', width: '100%',
+            borderRadius: 8, border: 'none', cursor: 'pointer', textDecoration: 'none',
+            background: 'transparent', color: 'var(--t2)',
+            fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 500,
+            transition: 'all .15s',
+          }}>
+            🗺️ System Map
+          </a>
+        </div>
         <div style={{ padding: '12px 20px', borderTop: '1px solid var(--border)', fontSize: 10, color: 'var(--t4)', fontStyle: 'italic' }}>
           Updated 2× daily
         </div>
@@ -86,12 +97,20 @@ export default function App() {
             <span style={{ fontSize: 16 }}>📓</span>
             <span className="font-display" style={{ fontWeight: 700, fontSize: 17, color: 'var(--t1)', fontStyle: 'italic' }}>Life OS</span>
           </div>
-          <span style={{ fontSize: 12, color: 'var(--t3)' }}>
-            {new Date().toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' })}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <a href="/system-map.html" target="_blank" rel="noopener" style={{
+              fontSize: 11, color: 'var(--t3)', textDecoration: 'none', padding: '4px 8px',
+              borderRadius: 6, border: '1px solid var(--border)', fontWeight: 500,
+            }}>
+              🗺️ System Map
+            </a>
+            <span style={{ fontSize: 12, color: 'var(--t3)' }}>
+              {new Date().toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' })}
+            </span>
+          </div>
         </header>
 
-        <main style={{ padding: 16, flex: 1, overflowX: 'hidden', maxWidth: 960, margin: '0 auto', width: '100%' }}>
+        <main className={page === 'overview' ? 'main-overview' : ''} style={{ padding: 16, flex: 1, overflowX: 'hidden', maxWidth: page === 'overview' ? 1600 : 960, margin: '0 auto', width: '100%' }}>
           {page === 'overview' && <OverviewPage data={data} onNavigate={go} />}
           {page === 'health' && <HealthPage data={data} />}
           {page === 'finance' && <FinancePage data={data} />}

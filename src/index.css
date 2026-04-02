@@ -61,8 +61,10 @@ body {
   color: var(--t1);
   font-family: 'Inter', system-ui, sans-serif;
   min-height: 100dvh; -webkit-font-smoothing: antialiased;
-  overflow-x: hidden; font-size: 14px;
+  overflow-x: hidden; font-size: 16px;
   letter-spacing: -0.01em;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 #root { min-height: 100dvh; display: flex; flex-direction: column; }
 
@@ -82,6 +84,8 @@ body {
   box-shadow: var(--shadow);
   transition: box-shadow .25s ease, border-color .25s ease, transform .25s ease;
   position: relative;
+  overflow: hidden;
+  min-width: 0;
 }
 .card:hover {
   box-shadow: var(--shadow-lg);
@@ -148,12 +152,91 @@ body {
 /* ── Tag / Badge ───────────────────────────── */
 .tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
 
-/* ── Overview Grid (Müller-Brockmann inspired) ── */
+/* ── Overview Grid (3-column data-dense) ── */
 .overview-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
 }
+.ov-banner { grid-column: 1 / -1; }
+
+/* Tablet: 2-column */
+@media (min-width: 640px) {
+  .overview-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+/* Desktop: 3-column data-dense layout */
+@media (min-width: 1024px) {
+  .overview-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+}
+
+/* ── Metric row ── */
+.ov-metric-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+.ov-metric-label {
+  font-size: 11px;
+  color: var(--t3);
+  width: 56px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+.ov-metric-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--t1);
+  width: 64px;
+  flex-shrink: 0;
+  text-align: right;
+}
+.ov-metric-bar {
+  flex: 1;
+  min-width: 0;
+}
+.ov-metric-unit {
+  font-size: 11px;
+  color: var(--t3);
+  min-width: 56px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.ov-bar-track {
+  height: 10px;
+  background: var(--bg3);
+  border-radius: 5px;
+  overflow: visible;
+  position: relative;
+}
+.ov-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width .6s cubic-bezier(.16,1,.3,1);
+}
+
+/* ── Overview card style ── */
+.ov-card {
+  padding: 20px 24px;
+}
+.ov-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  font-style: italic;
+}
+
+/* Health grid (kept for other pages) */
 .health-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -164,34 +247,12 @@ body {
   text-align: center;
   border-radius: 10px;
 }
-
-/* Tablet: 2-column */
 @media (min-width: 640px) {
-  .overview-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-  }
-  .ov-banner { grid-column: 1 / -1; }
   .health-grid { grid-template-columns: repeat(6, 1fr); }
 }
-
-/* Desktop: 2-column balanced layout */
 @media (min-width: 1024px) {
-  .overview-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    align-items: start;
-  }
-  /* Row 1: Banner full width */
-  .ov-banner { grid-column: 1 / -1; }
-  /* Row 2+: 2 columns, content flows naturally */
-  .health-grid {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-  }
-  .health-pill {
-    padding: 12px 8px;
-  }
+  .health-grid { grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .health-pill { padding: 12px 8px; }
 }
 
 /* Finance page: blind spots side by side */
@@ -210,7 +271,34 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--r);
   box-shadow: var(--shadow);
+  padding: 20px;
 }
+
+/* ── Scale up everything for readability ───── */
+.panel, .card { font-size: 14px; line-height: 1.6; }
+.panel table { font-size: 13px; }
+.panel table th, .panel table td { padding: 10px 8px; }
+.font-data { font-size: 13px; }
+
+/* Bigger stat numbers */
+.health-pill { padding: 14px 10px; }
+.health-pill .font-data { font-size: 20px !important; }
+
+/* Wider main area */
+@media (min-width: 1024px) {
+  .main-area main { padding: 24px !important; }
+  .main-area main.main-overview { max-width: 1600px !important; }
+  .main-area main:not(.main-overview) { max-width: 1200px !important; }
+}
+
+/* Bigger headings */
+h2 { font-size: 22px !important; margin-bottom: 14px; }
+
+/* Bigger bar tracks */
+.bar-track { height: 8px !important; }
+
+/* Bigger tags/badges */
+.tag { font-size: 13px !important; padding: 4px 10px !important; }
 
 /* ── Privacy blur ──────────────────────────── */
 .sensitive-blur {
@@ -245,4 +333,34 @@ body {
 .grid-6-inner { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 @media (min-width: 1024px) {
   .grid-6-inner { grid-template-columns: repeat(6, 1fr) !important; }
+}
+
+/* ── Time range selector ──────────────────── */
+.ov-range-group { display: flex; gap: 2px; }
+.ov-range-btn {
+  padding: 2px 8px; border-radius: 10px; border: none; cursor: pointer;
+  font-size: 10px; font-family: 'Inter', sans-serif; font-weight: 600;
+  background: transparent; color: var(--t3); transition: all .15s;
+}
+.ov-range-btn.active { background: var(--t1); color: var(--surface); }
+.ov-range-btn:hover:not(.active) { background: var(--bg3); }
+
+/* ── Mobile overflow fixes ─────────────────── */
+@media (max-width: 768px) {
+  .main-area main {
+    padding: 12px !important;
+    overflow-x: hidden;
+  }
+  .card {
+    max-width: 100%;
+  }
+  .overview-grid {
+    max-width: 100%;
+    overflow: hidden;
+  }
+  /* Prevent long text from pushing cards wider */
+  .font-data, .font-display {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }

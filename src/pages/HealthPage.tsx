@@ -231,6 +231,15 @@ function HealthDiagnosis({ data }: { data: LifeOSData }) {
         <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--green)', marginBottom: 4 }}>🎯 1% Better</div>
         <div style={{ fontSize: 11, color: 'var(--t1)', lineHeight: 1.5 }}>{diagnosis.action}</div>
       </div>
+      <a href="/nutrition-poster.html" target="_blank" rel="noopener" style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        marginTop: 12, padding: '10px 14px', borderRadius: 8,
+        border: '1px solid var(--border)', background: 'transparent',
+        color: 'var(--t2)', fontSize: 11, fontWeight: 600, textDecoration: 'none',
+        transition: 'all .15s',
+      }}>
+        🍽️ Fuel Chart — What to eat, what to avoid
+      </a>
     </div>
   );
 }

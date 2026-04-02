@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeOS — Fuel Chart</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        @page { size: A2 portrait; margin: 0; }
+        @media print {
+            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .no-print { display: none !important; }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0c0c0c;
+            --surface: #141414;
+            --surface2: #1c1c1c;
+            --border: rgba(255,255,255,0.06);
+            --green: #4ecca3;
+            --green-dim: rgba(78,204,163,0.15);
+            --gold: #d4a853;
+            --gold-dim: rgba(212,168,83,0.12);
+            --red: #e05555;
+            --red-dim: rgba(224,85,85,0.1);
+            --blue: #5b8fd4;
+            --text: #f0ece4;
+            --text2: #8a847a;
+            --text3: rgba(240,236,228,0.4);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .poster {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 60px 50px;
+            position: relative;
+        }
+
+        /* ── Grain overlay ── */
+        .poster::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* ── Header ── */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 2px;
+            background: var(--gold);
+            margin: 24px auto 0;
+        }
+        .header .eyebrow {
+            font-size: 11px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .header h1 em {
+            color: var(--green);
+            font-style: italic;
+        }
+        .header .tagline {
+            font-size: 1rem;
+            color: var(--text2);
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        /* ── Targets bar ── */
+        .targets {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 50px;
+        }
+        .target-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 12px;
+            text-align: center;
+        }
+        .target-box .t-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .target-box .t-unit {
+            font-size: 0.7rem;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+        .target-box .t-label {
+            font-size: 0.72rem;
+            color: var(--text3);
+            margin-top: 6px;
+        }
+
+        /* ── Section ── */
+        .section {
+            margin-bottom: 50px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .section-header .s-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .section-header .s-icon.green { background: var(--green-dim); }
+        .section-header .s-icon.gold { background: var(--gold-dim); }
+        .section-header .s-icon.red { background: var(--red-dim); }
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        .section-header .s-sub {
+            color: var(--text2);
+            font-size: 0.8rem;
+            margin-left: auto;
+        }
+
+        /* ── Food grid ── */
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .food-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+        .food-card:hover { border-color: rgba(255,255,255,0.12); }
+
+        .food-card .fc-emoji {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+        }
+        .food-card .fc-name {
+            font-weight: 700;
+            font-size: 0.92rem;
+            margin-bottom: 2px;
+            color: var(--text);
+        }
+        .food-card .fc-name-ro {
+            font-size: 0.75rem;
+            color: var(--text2);
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+        .food-card .fc-macros {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text2);
+            line-height: 1.6;
+        }
+        .food-card .fc-macros .hi { color: var(--green); font-weight: 500; }
+        .food-card .fc-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+        .tag {
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .tag.liver { background: rgba(78,204,163,0.12); color: var(--green); }
+        .tag.brain { background: rgba(91,143,212,0.12); color: var(--blue); }
+        .tag.gut { background: rgba(212,168,83,0.1); color: var(--gold); }
+        .tag.joint { background: rgba(180,120,200,0.12); color: #b478c8; }
+        .tag.hydration { background: rgba(100,180,220,0.12); color: #64b4dc; }
+        .tag.protein { background: rgba(224,85,85,0.1); color: var(--red); }
+
+        /* ── Tier badge ── */
+        .food-card .tier {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+        }
+        .tier.s { background: var(--green-dim); color: var(--green); border: 1px solid rgba(78,204,163,0.3); }
+        .tier.a { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(212,168,83,0.25); }
+        .tier.b { background: rgba(91,143,212,0.1); color: var(--blue); border: 1px solid rgba(91,143,212,0.2); }
+
+        /* ── Avoid section ── */
+        .avoid-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 8px;
+        }
+        .avoid-card {
+            background: var(--red-dim);
+            border: 1px solid rgba(224,85,85,0.15);
+            border-radius: 8px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .avoid-card .ac-emoji { font-size: 1.3rem; }
+        .avoid-card .ac-text { font-size: 0.82rem; }
+        .avoid-card .ac-name { font-weight: 600; color: var(--red); }
+        .avoid-card .ac-why { color: var(--text2); font-size: 0.72rem; }
+
+        /* ── Meal template ── */
+        .meal-timeline {
+            position: relative;
+            padding-left: 28px;
+        }
+        .meal-timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--gold), var(--green), var(--blue));
+            border-radius: 2px;
+        }
+        .meal-item {
+            position: relative;
+            padding: 12px 0 20px 20px;
+        }
+        .meal-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 16px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 2px solid var(--gold);
+        }
+        .meal-item:nth-child(2)::before { border-color: var(--green); }
+        .meal-item:nth-child(3)::before { border-color: var(--blue); }
+        .meal-item:nth-child(4)::before { border-color: var(--green); }
+        .meal-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--gold);
+            font-weight: 500;
+        }
+        .meal-name {
+            font-weight: 700;
+            font-size: 1rem;
+            margin: 4px 0 2px;
+        }
+        .meal-detail {
+            color: var(--text2);
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+        .meal-macros {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text3);
+            margin-top: 4px;
+        }
+
+        /* ── Hydration section ── */
+        .hydration-bar {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin: 16px 0;
+        }
+        .h-glass {
+            width: 32px;
+            height: 44px;
+            border-radius: 0 0 6px 6px;
+            border: 2px solid rgba(100,180,220,0.3);
+            border-top: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .h-glass .h-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(100,180,220,0.4), rgba(100,180,220,0.15));
+            height: 100%;
+        }
+        .h-glass .h-label {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: var(--text3);
+            white-space: nowrap;
+        }
+
+        /* ── Rules ── */
+        .rules {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .rule {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+        }
+        .rule .r-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold);
+            opacity: 0.3;
+            float: left;
+            margin-right: 12px;
+            line-height: 1;
+        }
+        .rule .r-text {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--text2);
+        }
+        .rule .r-text strong {
+            color: var(--text);
+        }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+        }
+        .footer .f-quote {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-style: italic;
+            color: var(--text2);
+            max-width: 500px;
+            margin: 0 auto 12px;
+        }
+        .footer .f-sig {
+            font-size: 0.7rem;
+            color: var(--text3);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 600px) {
+            .poster { padding: 30px 20px; }
+            .header h1 { font-size: 2.8rem; }
+            .targets { grid-template-columns: repeat(3, 1fr); }
+            .food-grid { grid-template-columns: 1fr 1fr; }
+            .rules { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="poster">
+
+    <!-- ═══ HEADER ═══ -->
+    <div class="header">
+        <div class="eyebrow">Recovery · Performance · Longevity</div>
+        <h1>Fuel <em>Chart</em></h1>
+        <div class="tagline">What to eat. What to avoid. Every day.</div>
+    </div>
+
+    <!-- ═══ DAILY TARGETS ═══ -->
+    <div class="targets">
+        <div class="target-box">
+            <div class="t-num">2200</div>
+            <div class="t-unit">kcal</div>
+            <div class="t-label">minimum zilnic</div>
+        </div>
+        <div class="target-box">
+            <div class="t-num">140</div>
+            <div class="t-unit">g protein</div>
+            <div class="t-label">prioritate #1</div>
+        </div>
+        <div class="target-box">
+            <div class="t-num">80%</div>
+            <div class="t-unit">unsat fat</div>
+            <div class="t-label">din total grăsimi</div>
+        </div>
+        <div class="target-box">
+            <div class="t-num">245</div>
+            <div class="t-unit">g carbs</div>
+            <div class="t-label">whole > refined</div>
+        </div>
+        <div class="target-box">
+            <div class="t-num">3L</div>
+            <div class="t-unit">apă</div>
+            <div class="t-label">+ fructe hidratante</div>
+        </div>
+    </div>
+
+    <!-- ═══ S-TIER: THE BEST ═══ -->
+    <div class="section">
+        <div class="section-header">
+            <div class="s-icon green">👑</div>
+            <h2>S-Tier — Daily Essentials</h2>
+            <div class="s-sub">Mănâncă zilnic</div>
+        </div>
+        <div class="food-grid">
+            <div class="food-card">
+                <span class="tier s">S</span>
+                <div class="fc-emoji">🥚</div>
+                <div class="fc-name">Eggs (3-4/zi)</div>
+                <div class="fc-name-ro">Ouă fierte / omletă</div>
+                <div class="fc-macros">
+                    <span class="hi">78cal · P6g</span> · F5g · C0.6g<br>
+                    Choline → liver repair<br>
+                    B12, D, zinc, selenium
+                </div>
+                <div class="fc-tags">
+                    <span class="tag liver">liver</span>
+                    <span class="tag brain">brain</span>
+                    <span class="tag protein">protein</span>
+                </div>
+            </div>
+            <div class="food-card">
+                <span class="tier s">S</span>
+                <div class="fc-emoji">🐟</div>
+                <div class="fc-name">Salmon / Sardines</div>
+                <div class="fc-name-ro">Somon / Sardine (150g)</div>
+                <div class="fc-macros">
+                    <span class="hi">250cal · P30g</span> · F14g unsat<br>
+                    Omega-3 EPA+DHA king<br>
+                    Vit D, B12, selenium
+                </div>
+                <div class="fc-tags">
+                    <span class="tag brain">brain</span>
+                    <span class="tag liver">liver</span>
+                    <span class="tag joint">joint</span>
+                </div>
+            </div>
+            <div class="food-card">
+                <span class="tier s">S</span>
+                <div class="fc-emoji">🥑</div>
+                <div class="fc-name">Avocado</div>
+                <div class="fc-name-ro">Avocado (1/2 buc)</div>
+                <div class="fc-macros">
+                    <span class="hi">160cal</span> · P2g · F15g (80% unsat)<br>
+                    Glutathione → liver detox<br>
+                    Potasiu, folat, fibre
+                </div>
+                <div class="fc-tags">
+                    <span class="tag liver">liver</span>
+                    <span class="tag gut">gut</span>
+                </div>
+            </div>
+            <div class="food-card">
+                <span class="tier s">S</span>
+                <div class="fc-emoji">🥦</div>
+                <div class="fc-name">Broccoli / Kale</div>
+                <div class="fc-name-ro">Broccoli / Varză kale</div>
+                <div class="fc-macros">
+                    <span class="hi">55cal · Fiber 5g</span><br>
+                    Sulforaphane → liver detox<br>
+                    Vit C, K, folat, calciu
+                </div>
+                <div class="fc-tags">
+                    <span class="tag liver">liver</span>
+                    <span class="tag gut">gut</span>
+                </div>
+            </div>
+            <div class="food-card">
+                <span class="tier s">S</span>
+                <div class="fc-emoji">🫐</div>
+                <div class="fc-name">Blueberries</div>
+                <div class="fc-name-ro">Afine (100g)</div>
+                <div class="fc-macros">
+                    <span class="hi">57cal</span> · Antioxidanți #1<br>
+                    Flavonoide → neurogenesis<br>
+                    Vit C, K, manganese
+                </div>
+                <div class="fc-tags">
+                    <span class="tag brain">brain</span>
+                    <span class="tag hydration">hydration</span>
+                </div>
+            </div>
+            <div class="food-card">
+                <span class="tier s">S</span>
+                <div class="fc-emoji">🐔</div>
+                <div class="fc-name">Chicken Breast</div>
+                <div class="fc-name-ro">Piept de pui (200g)</div>
+                <div class="fc-macros">
+                    <span class="hi">330cal · P62g</span> · F7g<br>
+                    Protein king, low sat fat<br>
+                    B6, niacin, selenium
+                </div>
+                <div class="fc-tags">
+                    <span class="tag protein">protein</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ A-TIER ═══ -->
+    <div class="section">
+        <div class="section-header">
+            <div class="s-icon gold">⭐</div>
+            <h2>A-Tier — Weekly Rotations</h2>
+            <div class="s-sub">3-5× pe săptămână</div>
+        </div>
+        <div class="food-grid">
+            <div class="food-card">
+                <span class="tier a">A</span>
+                <div class="fc-emoji">🥜</div>
+                <div class="fc-name">Walnuts / Almonds</div>
+                <div class="fc-name-ro">Nuci / Migdale (30g)</div>
+                <div class="fc-macros">
+                    <span class="hi">185cal · F18g (85% unsat)</span><br>
+                    Omega-3 (walnuts), Vit E<br>
+                    Magneziu, zinc, selenium
+                </div>
+                <div class="fc-tags">
+                    <span class="tag brain">brain</span>
+                    <span class="tag liver">liver</span>
+                </div>
+            </div>
+            <div class="food-card">
+                <span class="tier a">A</span>
+                <div class="fc-emoji">🫒</div>
+                <div class="fc-name">Olive Oil (Extra Virgin)</div>
+                <div class="fc-name-ro">Ulei de măsline (1 lingură)</div>
+                <div class="fc-macros">
+                    <span class="hi">120cal · F14g (85% unsat)</span><br>
+                    Oleic acid → anti-inflamator<br>
+                    Polifenoli, Vit E, K
+                </div>
+                <div class="fc-tags">
+                    <span class="tag liver">liver</span>
+                    <span class="tag joint">joint</span>
+                </div>
+            </div>
+            <div class="food-card">
+                <span class="tier a">A</span>
+                <div class="fc-emoji">🥬</div>
+                <div class="fc-name">Spinach</div>
+                <div class="fc-name-ro">Spanac (100g)</div>
+                <div class="fc-macros">
+                    <span class="hi">23cal · Fier 2.7mg</span><br>
+                    Folat, Mg, K, Vit A, C<br>
+                    Luteină → eyes + brain
+                </div>
+                <div class="fc-tags">
+                    <span class="tag brain">brain</span>
+                    <span class="tag liver">liver</span>
+                </div>
+            </div>
+            <div class="food-card">
+                <span class="tier a">A</span>
+                <div class="fc-emoji">🥛</div>
+                <div class="fc-name">Cottage Cheese</div>
+                <div class="fc-name-ro">Brânză de vaci (150g)</div>
+                <div class="fc-macros">
+                    <span class="hi">146cal · P18g</span> · F6g<br>
+                    Cazeină → slow protein<br>
+                    Calciu, B12, selenium
+                </div>
+                <div class="fc-tags">
+                    <span class="tag protein">protein</span>
+                    <span class="tag gut">gut</span>
+                </div>
+            </div>
+            <div class="food-card">
+                <span class="tier a">A</span>
+                <div class="fc-emoji">🍠</div>
+                <div class="fc-name">Sweet Potato / Oats</div>
+                <div class="fc-name-ro">Cartof dulce / Ovăz (150g)</div>
+                <div class="fc-macros">
+                    <span class="hi">130cal · C30g (whole)</span><br>
+                    Low GI, fiber 4g, Beta-carotene<br>
+                    Potasiu, Mn, Vit B6
+                </div>
+                <div class="fc-tags">
+                    <span class="tag gut">gut</span>
+                </div>
+            </div>
+            <div class="food-card">
+                <span class="tier a">A</span>
+                <div class="fc-emoji">🍋</div>
+                <div class="fc-name">Kiwi / Citrus</div>
+                <div class="fc-name-ro">Kiwi (2 buc) / Portocale</div>
+                <div class="fc-macros">
+                    <span class="hi">84cal · Vit C 128mg (213%)</span><br>
+                    Glutathione boost → liver<br>
+                    Fiber, folat, potasiu
+                </div>
+                <div class="fc-tags">
+                    <span class="tag liver">liver</span>
+                    <span class="tag hydration">hydration</span>
+                    <span class="tag joint">joint</span>
+                </div>
+            </div>
+            <div class="food-card">
+                <span class="tier a">A</span>
+                <div class="fc-emoji">🫘</div>
+                <div class="fc-name">Lentils / Beans</div>
+                <div class="fc-name-ro">Linte / Fasole (150g gătite)</div>
+                <div class="fc-macros">
+                    <span class="hi">165cal · P12g · Fiber 10g</span><br>
+                    Fier, zinc, folat, Mg<br>
+                    Prebiotic → gut microbiome
+                </div>
+                <div class="fc-tags">
+                    <span class="tag gut">gut</span>
+                    <span class="tag protein">protein</span>
+                </div>
+            </div>
+            <div class="food-card">
+                <span class="tier a">A</span>
+                <div class="fc-emoji">🥒</div>
+                <div class="fc-name">Cucumber / Watermelon</div>
+                <div class="fc-name-ro">Castraveți / Pepene verde</div>
+                <div class="fc-macros">
+                    <span class="hi">16cal · 96% water</span><br>
+                    Hidratare + electrolyte<br>
+                    Vit K, silica → skin
+                </div>
+                <div class="fc-tags">
+                    <span class="tag hydration">hydration</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ B-TIER ═══ -->
+    <div class="section">
+        <div class="section-header">
+            <div class="s-icon gold">✔</div>
+            <h2>B-Tier — Good Supporting Cast</h2>
+            <div class="s-sub">Rotație săptămânală</div>
+        </div>
+        <div class="food-grid">
+            <div class="food-card">
+                <span class="tier b">B</span>
+                <div class="fc-emoji">🍚</div>
+                <div class="fc-name">Brown Rice</div>
+                <div class="fc-name-ro">Orez brun (150g gătit)</div>
+                <div class="fc-macros">
+                    <span class="hi">165cal · C36g (whole)</span><br>
+                    Fiber 2g, Mg, Mn, B1
+                </div>
+                <div class="fc-tags"><span class="tag gut">gut</span></div>
+            </div>
+            <div class="food-card">
+                <span class="tier b">B</span>
+                <div class="fc-emoji">🧀</div>
+                <div class="fc-name">Greek Yogurt</div>
+                <div class="fc-name-ro">Iaurt grecesc (150g)</div>
+                <div class="fc-macros">
+                    <span class="hi">100cal · P15g</span><br>
+                    Probiotice, calciu, B12
+                </div>
+                <div class="fc-tags"><span class="tag gut">gut</span><span class="tag protein">protein</span></div>
+            </div>
+            <div class="food-card">
+                <span class="tier b">B</span>
+                <div class="fc-emoji">🥕</div>
+                <div class="fc-name">Carrots / Peppers</div>
+                <div class="fc-name-ro">Morcovi / Ardei</div>
+                <div class="fc-macros">
+                    <span class="hi">41cal · Vit A 428%</span><br>
+                    Beta-carotene, Vit C
+                </div>
+                <div class="fc-tags"><span class="tag liver">liver</span></div>
+            </div>
+            <div class="food-card">
+                <span class="tier b">B</span>
+                <div class="fc-emoji">🌾</div>
+                <div class="fc-name">Whey Protein</div>
+                <div class="fc-name-ro">Proteină din zer (1 scoop)</div>
+                <div class="fc-macros">
+                    <span class="hi">120cal · P25g</span> · F1g<br>
+                    Leucine → muscle synthesis
+                </div>
+                <div class="fc-tags"><span class="tag protein">protein</span></div>
+            </div>
+            <div class="food-card">
+                <span class="tier b">B</span>
+                <div class="fc-emoji">🍌</div>
+                <div class="fc-name">Banana</div>
+                <div class="fc-name-ro">Banană (1 buc)</div>
+                <div class="fc-macros">
+                    <span class="hi">105cal · C27g · K 422mg</span><br>
+                    Prebiotic, Vit B6, Mg
+                </div>
+                <div class="fc-tags"><span class="tag gut">gut</span></div>
+            </div>
+            <div class="food-card">
+                <span class="tier b">B</span>
+                <div class="fc-emoji">🍫</div>
+                <div class="fc-name">Dark Chocolate 85%+</div>
+                <div class="fc-name-ro">Ciocolată neagră (20g)</div>
+                <div class="fc-macros">
+                    <span class="hi">120cal · Mg 50mg</span><br>
+                    Flavonoide, fier, zinc
+                </div>
+                <div class="fc-tags"><span class="tag brain">brain</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ AVOID ═══ -->
+    <div class="section">
+        <div class="section-header">
+            <div class="s-icon red">🚫</div>
+            <h2>Avoid — Încetinesc Recovery</h2>
+        </div>
+        <div class="avoid-grid">
+            <div class="avoid-card">
+                <div class="ac-emoji">🍺</div>
+                <div class="ac-text">
+                    <div class="ac-name">Alcool</div>
+                    <div class="ac-why">Liver overload, sleep -20pts</div>
+                </div>
+            </div>
+            <div class="avoid-card">
+                <div class="ac-emoji">🍟</div>
+                <div class="ac-text">
+                    <div class="ac-name">Prăjeli / Fast food</div>
+                    <div class="ac-why">Trans fat, inflamație, sat fat 90%</div>
+                </div>
+            </div>
+            <div class="avoid-card">
+                <div class="ac-emoji">🍬</div>
+                <div class="ac-text">
+                    <div class="ac-name">Zahăr rafinat</div>
+                    <div class="ac-why">Fatty liver, insulin spike</div>
+                </div>
+            </div>
+            <div class="avoid-card">
+                <div class="ac-emoji">🥫</div>
+                <div class="ac-text">
+                    <div class="ac-name">Procesate (pateu, mezeluri)</div>
+                    <div class="ac-why">Sat fat, sodiu, conservanți</div>
+                </div>
+            </div>
+            <div class="avoid-card">
+                <div class="ac-emoji">🍞</div>
+                <div class="ac-text">
+                    <div class="ac-name">Pâine albă / Paste albe</div>
+                    <div class="ac-why">Refined carbs, GI ridicat</div>
+                </div>
+            </div>
+            <div class="avoid-card">
+                <div class="ac-emoji">🥤</div>
+                <div class="ac-text">
+                    <div class="ac-name">Sucuri / Băuturi dulci</div>
+                    <div class="ac-why">Fructoză = fatty liver direct</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ DAILY MEAL TEMPLATE ═══ -->
+    <div class="section">
+        <div class="section-header">
+            <div class="s-icon green">🍽️</div>
+            <h2>Daily Template</h2>
+            <div class="s-sub">~2300cal · 145g P · 80% unsat</div>
+        </div>
+        <div class="meal-timeline">
+            <div class="meal-item">
+                <div class="meal-time">06:30 — Mic dejun</div>
+                <div class="meal-name">3 ouă omletă + spanac + avocado 1/2</div>
+                <div class="meal-detail">+ ovăz 50g cu afine 50g + 1 banană</div>
+                <div class="meal-macros">~620cal · P32g · F28g (78% unsat) · C58g · 500ml apă</div>
+            </div>
+            <div class="meal-item">
+                <div class="meal-time">12:30 — Prânz</div>
+                <div class="meal-name">Piept pui 200g + orez brun + broccoli</div>
+                <div class="meal-detail">+ salată spanac cu ulei măsline + lămâie</div>
+                <div class="meal-macros">~650cal · P55g · F12g (80% unsat) · C72g · 500ml apă</div>
+            </div>
+            <div class="meal-item">
+                <div class="meal-time">16:00 — Snack</div>
+                <div class="meal-name">Cottage cheese 150g + nuci 30g + kiwi 2 buc</div>
+                <div class="meal-detail">sau: whey shake + 1 banană + migdale</div>
+                <div class="meal-macros">~400cal · P28g · F20g (85% unsat) · C30g · 500ml apă</div>
+            </div>
+            <div class="meal-item">
+                <div class="meal-time">19:30 — Cină</div>
+                <div class="meal-name">Somon 150g + cartofi dulci + legume</div>
+                <div class="meal-detail">sau: sardine + pâine integrală + salată mare</div>
+                <div class="meal-macros">~580cal · P35g · F22g (82% unsat) · C65g · 500ml apă</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ HYDRATION ═══ -->
+    <div class="section">
+        <div class="section-header">
+            <div class="s-icon gold">💧</div>
+            <h2>Hydration — 3L Minimum</h2>
+        </div>
+        <div class="hydration-bar">
+            <div class="h-glass"><div class="h-fill"></div><div class="h-label">trezire</div></div>
+            <div class="h-glass"><div class="h-fill"></div><div class="h-label">gym</div></div>
+            <div class="h-glass"><div class="h-fill"></div><div class="h-label">10:00</div></div>
+            <div class="h-glass"><div class="h-fill"></div><div class="h-label">prânz</div></div>
+            <div class="h-glass"><div class="h-fill"></div><div class="h-label">14:00</div></div>
+            <div class="h-glass"><div class="h-fill"></div><div class="h-label">16:00</div></div>
+            <div class="h-glass"><div class="h-fill"></div><div class="h-label">18:00</div></div>
+            <div class="h-glass"><div class="h-fill"></div><div class="h-label">cină</div></div>
+            <div class="h-glass"><div class="h-fill"></div><div class="h-label">20:00</div></div>
+            <div class="h-glass"><div class="h-fill"></div><div class="h-label">seara</div></div>
+        </div>
+        <div style="color:var(--text2); font-size:0.8rem; margin-top:24px; line-height:1.6;">
+            10 pahare × 300ml = 3L · Fructe hidratante bonus: pepene verde (92%), căpșuni (91%), castraveți (96%)
+        </div>
+    </div>
+
+    <!-- ═══ GOLDEN RULES ═══ -->
+    <div class="section">
+        <div class="section-header">
+            <div class="s-icon gold">📜</div>
+            <h2>Golden Rules</h2>
+        </div>
+        <div class="rules">
+            <div class="rule">
+                <span class="r-num">1</span>
+                <div class="r-text"><strong>Protein first.</strong> Fiecare masă începe cu sursa de proteină. Restul e garnitură.</div>
+            </div>
+            <div class="rule">
+                <span class="r-num">2</span>
+                <div class="r-text"><strong>Colorează farfuria.</strong> Dacă e alb/maro only → adaugă verde, roșu, portocaliu.</div>
+            </div>
+            <div class="rule">
+                <span class="r-num">3</span>
+                <div class="r-text"><strong>Fat = unsaturated default.</strong> Ulei de măsline > unt. Nuci > brânzeturi. Pește > porc.</div>
+            </div>
+            <div class="rule">
+                <span class="r-num">4</span>
+                <div class="r-text"><strong>Prep Sunday.</strong> Spală fructe. Taie legume. Gătește pui pt 3 zile. Done in 30 min.</div>
+            </div>
+            <div class="rule">
+                <span class="r-num">5</span>
+                <div class="r-text"><strong>Whole > Refined.</strong> Orez brun > alb. Ovăz > cereale. Fruct > suc. Pâine integrală > albă.</div>
+            </div>
+            <div class="rule">
+                <span class="r-num">6</span>
+                <div class="r-text"><strong>Ce vezi, mănânci.</strong> Pune fructele în față. Ascunde snack-urile proaste. Environment > willpower.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ FOOTER ═══ -->
+    <div class="footer">
+        <div class="f-quote">"Mâncarea e informație pentru corp. Alege mesajul potrivit."</div>
+        <div class="f-sig">LifeOS · Recovery Protocol · 2026</div>
+    </div>
+
+</div>
+</body>
+</html>

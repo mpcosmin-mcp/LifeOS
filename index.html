@@ -1,130 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life OS — Personal Operating System</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'JetBrains Mono', 'Monaco', monospace;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #e2e8f0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 3rem;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #4ecca3 0%, #45b393 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .tagline {
-            text-align: center;
-            color: #94a3b8;
-            font-size: 1.1rem;
-            margin-bottom: 50px;
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(78, 204, 163, 0.3);
-            border-radius: 12px;
-            padding: 30px;
-            text-decoration: none;
-            color: #e2e8f0;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: #4ecca3;
-            box-shadow: 0 10px 30px rgba(78, 204, 163, 0.3);
-        }
-
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #4ecca3;
-        }
-
-        .card-desc {
-            color: #94a3b8;
-            line-height: 1.6;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 50px;
-            color: #64748b;
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            .tagline { font-size: 1rem; }
-            .cards { grid-template-columns: 1fr; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Life OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 </head>
 <body>
-    <div class="container">
-        <h1>🦞 Life OS</h1>
-        <p class="tagline">Your Personal Operating System — Health, Finance, Mind & Architecture</p>
-
-        <div class="cards">
-            <a href="dist/" class="card">
-                <div class="card-icon">📊</div>
-                <div class="card-title">Dashboard</div>
-                <div class="card-desc">
-                    Live KPIs across Health, Finance, Psychology, and Calendar modules. Real-time data from SQLite databases.
-                </div>
-            </a>
-
-            <a href="public/system-flow.html" class="card">
-                <div class="card-icon">🗺️</div>
-                <div class="card-title">System Architecture</div>
-                <div class="card-desc">
-                    Interactive flow diagram — see how input travels through orchestration, routing, modules, and automation. 24 scenarios.
-                </div>
-            </a>
-        </div>
-
-        <div class="footer">
-            Built with OpenClaw · FastMCP · React · SQLite<br>
-            Last updated: 2026-03-27
-        </div>
-    </div>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

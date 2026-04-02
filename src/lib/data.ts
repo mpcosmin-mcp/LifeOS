@@ -5,11 +5,24 @@
 
 import type { LifeOSData } from './types';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+// Auto-detect API host: use same hostname as the page (works for localhost + Tailscale)
+const API_BASE = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:8000`;
 const BASE_URL = import.meta.env.BASE_URL || '/';
 
 export async function fetchLifeOSData(): Promise<LifeOSData> {
-  // 1. Try static JSON (works on GitHub Pages)
+  // 1. Try live API FIRST (local FastAPI server)
+  try {
+    const res = await fetch(`${API_BASE}/api/all`);
+    if (res.ok) {
+      const data = await res.json();
+      console.log('📊 Loaded LIVE data from FastAPI API:', data.lastUpdated);
+      return data;
+    }
+  } catch (err) {
+    console.warn('Live API unavailable, falling back to static JSON:', err);
+  }
+
+  // 2. Try static JSON fallback (works on GitHub Pages / offline)
   try {
     const res = await fetch(`${BASE_URL}data/all.json`);
     if (res.ok) {
@@ -21,14 +34,8 @@ export async function fetchLifeOSData(): Promise<LifeOSData> {
     }
   } catch { /* fall through */ }
 
-  // 2. Try live API (works locally)
-  try {
-    const res = await fetch(`${API_BASE}/api/all`);
-    if (res.ok) return await res.json();
-  } catch { /* fall through */ }
-
   // 3. Empty fallback
-  console.warn('No data source available');
+  console.warn('⚠️ No data source available (API + static JSON both failed)');
   return EMPTY_DATA;
 }
 

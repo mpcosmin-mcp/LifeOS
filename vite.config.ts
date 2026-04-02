@@ -4,7 +4,7 @@ import { viteSingleFile } from 'vite-plugin-singlefile';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  base: '/LifeOS/',
+  base: '/',
   plugins: [react(), tailwindcss(), viteSingleFile()],
   build: {
     outDir: 'dist',

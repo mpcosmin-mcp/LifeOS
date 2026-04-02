@@ -1,0 +1,11 @@
+name = "lifeos-api"
+main = "cloudflare/workers/api.js"
+compatibility_date = "2024-03-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "lifeos-data"
+database_id = "placeholder"
+
+[vars]
+ENVIRONMENT = "production"
