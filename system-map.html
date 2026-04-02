@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeOS — System Map</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #1a1a2e;
+            --bg2: #232340;
+            --bg3: #2a2a48;
+            --border: rgba(78, 204, 163, 0.25);
+            --border-active: rgba(78, 204, 163, 0.6);
+            --accent: #4ecca3;
+            --accent2: #ffd700;
+            --text: #e0e0e0;
+            --text2: #a0a0a0;
+            --card: rgba(255, 255, 255, 0.04);
+            --card-hover: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* ── Header ── */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            color: var(--accent);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .header .subtitle {
+            color: var(--text2);
+            font-size: 0.85rem;
+        }
+        .header .version {
+            color: var(--accent);
+            font-size: 0.75rem;
+            margin-top: 4px;
+            opacity: 0.7;
+        }
+
+        /* ── Section titles ── */
+        .section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .section-title .icon { font-size: 1.5rem; }
+        .section-desc {
+            color: var(--text2);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        /* ── Flow diagram (vertical) ── */
+        .flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 40px;
+        }
+        .flow-node {
+            background: var(--bg2);
+            border: 2px solid var(--border-active);
+            border-radius: 12px;
+            padding: 16px 32px;
+            text-align: center;
+            min-width: 200px;
+        }
+        .flow-node .label {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text);
+        }
+        .flow-node .sub {
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .flow-arrow {
+            color: var(--accent);
+            font-size: 1.4rem;
+            line-height: 1;
+            padding: 6px 0;
+            opacity: 0.6;
+        }
+
+        /* ── Cards (context files, other docs) ── */
+        .card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        .card:hover { background: var(--card-hover); }
+        .card .card-title {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 3px;
+        }
+        .card .card-desc {
+            color: var(--text2);
+            font-size: 0.82rem;
+        }
+
+        /* ── Modules (expandable) ── */
+        .module {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+        .module:hover { border-color: var(--border-active); }
+        .module-header {
+            padding: 16px 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .module-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .module-header .mod-icon { font-size: 1.5rem; }
+        .module-header .mod-name {
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: var(--text);
+        }
+        .module-header .mod-meta {
+            color: var(--text2);
+            font-size: 0.78rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .module-header .chevron {
+            color: var(--accent);
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+        .module.open .chevron { transform: rotate(180deg); }
+
+        .module-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+        .module.open .module-body {
+            max-height: 1200px;
+        }
+        .module-body-inner {
+            padding: 0 18px 18px;
+        }
+
+        /* ── Sub-labels inside modules ── */
+        .sub-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-top: 14px;
+            margin-bottom: 6px;
+        }
+
+        /* ── Table cards (inside modules) ── */
+        .table-card {
+            background: var(--bg3);
+            border-left: 3px solid var(--accent);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+        }
+        .table-card .tc-name {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .table-card .tc-rows {
+            color: var(--accent2);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .table-card .tc-cols {
+            color: var(--text2);
+            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        /* Module-specific border colors */
+        .module.health .table-card { border-left-color: #4ecca3; }
+        .module.finance .table-card { border-left-color: #ffd700; }
+        .module.psychology .table-card { border-left-color: #6c9bd2; }
+        .module.calendar .table-card { border-left-color: #e07070; }
+
+        .module.health .mod-name { color: #4ecca3; }
+        .module.finance .mod-name { color: #ffd700; }
+        .module.psychology .mod-name { color: #6c9bd2; }
+        .module.calendar .mod-name { color: #e07070; }
+
+        /* ── Tool tags ── */
+        .tools-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .tool-tag {
+            background: rgba(78, 204, 163, 0.1);
+            border: 1px solid rgba(78, 204, 163, 0.2);
+            border-radius: 5px;
+            padding: 3px 8px;
+            font-size: 0.72rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+        }
+        .module.finance .tool-tag {
+            background: rgba(255, 215, 0, 0.08);
+            border-color: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+        }
+        .module.psychology .tool-tag {
+            background: rgba(108, 155, 210, 0.08);
+            border-color: rgba(108, 155, 210, 0.2);
+            color: #6c9bd2;
+        }
+        .module.calendar .tool-tag {
+            background: rgba(224, 112, 112, 0.08);
+            border-color: rgba(224, 112, 112, 0.2);
+            color: #e07070;
+        }
+
+        /* ── Config table (inside finance) ── */
+        .config-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 0.8rem;
+        }
+        .config-row .cl { color: var(--text2); }
+        .config-row .cr { color: var(--text); font-weight: 500; font-family: 'JetBrains Mono', monospace; }
+
+        /* ── Timeline (cron jobs) ── */
+        .timeline {
+            position: relative;
+            padding-left: 24px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+        .tl-group-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding-left: 6px;
+        }
+        .tl-group-label:first-child { margin-top: 0; }
+        .tl-item {
+            position: relative;
+            padding: 0 0 18px 16px;
+        }
+        .tl-item::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 2px solid var(--bg);
+        }
+        .tl-item.weekly::before { background: #6c9bd2; }
+        .tl-item.monthly::before { background: #ffd700; }
+        .tl-item.oneshot::before { background: #e07070; }
+        .tl-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+        .tl-item.weekly .tl-time { color: #6c9bd2; }
+        .tl-item.monthly .tl-time { color: #ffd700; }
+        .tl-item.oneshot .tl-time { color: #e07070; }
+        .tl-desc {
+            color: var(--text2);
+            font-size: 0.82rem;
+            margin-top: 2px;
+        }
+        .tl-target {
+            color: var(--text2);
+            font-size: 0.7rem;
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.6;
+        }
+
+        /* ── Routing table ── */
+        .route-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+        .route-table th {
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--accent);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .route-table td {
+            padding: 6px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            vertical-align: top;
+        }
+        .route-table td:first-child {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text);
+            font-size: 0.78rem;
+        }
+        .route-table td:nth-child(2) {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* ── Stats bar ── */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+        .stat-box {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .stat-num {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        /* ── Directories ── */
+        .dir-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+        }
+        .dir-item {
+            background: var(--bg3);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+        }
+        .dir-item .dir-name {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            font-weight: 500;
+        }
+        .dir-item .dir-desc {
+            color: var(--text2);
+            font-size: 0.72rem;
+        }
+
+        @media (max-width: 500px) {
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .flow-node { min-width: 160px; padding: 12px 20px; }
+            .dir-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ═══ HEADER ═══ -->
+    <div class="header">
+        <h1>🦞 LifeOS System Map</h1>
+        <div class="subtitle">Sursă de adevăr — dacă e aici, e real</div>
+        <div class="version">v4.0 — Verified from live DBs · 2 Apr 2026</div>
+        <div style="margin-top:8px; display:flex; gap:12px; justify-content:center;">
+            <a href="/" style="color:var(--accent); font-size:0.78rem; text-decoration:none; opacity:0.6; transition:opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">← Dashboard</a>
+        </div>
+    </div>
+
+    <!-- ═══ STATS ═══ -->
+    <div class="stats">
+        <div class="stat-box">
+            <div class="stat-num">5</div>
+            <div class="stat-label">Modules</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num">47</div>
+            <div class="stat-label">MCP Tools</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num">15</div>
+            <div class="stat-label">Tables</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num">20</div>
+            <div class="stat-label">Cron Jobs</div>
+        </div>
+    </div>
+
+    <!-- ═══ MAIN FLOW ═══ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">🔄</span> System Flow</div>
+        <div class="flow">
+            <div class="flow-node"><div class="label">Input</div><div class="sub">Telegram</div></div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node"><div class="label">Orchestration</div><div class="sub">OpenClaw</div></div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node"><div class="label">Routing</div><div class="sub">Varutzu</div></div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node"><div class="label">Execution</div><div class="sub">MCP Servers (FastMCP)</div></div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node"><div class="label">Storage</div><div class="sub">SQLite</div></div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node"><div class="label">Output</div><div class="sub">Telegram + memory/*.md</div></div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-node"><div class="label">Automation</div><div class="sub">Cron (feedback loop)</div></div>
+        </div>
+    </div>
+
+    <!-- ═══ CONTEXT FILES ═══ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">📄</span> Context Files (Orchestration Layer)</div>
+        <div class="section-desc">These markdown files are loaded every session to guide Varutzu's behavior:</div>
+
+        <div class="card"><div class="card-title">AGENTS.md</div><div class="card-desc">Session startup rules, memory protocol</div></div>
+        <div class="card"><div class="card-title">SOUL.md</div><div class="card-desc">Persona (Varutzu), tone, values</div></div>
+        <div class="card"><div class="card-title">USER.md</div><div class="card-desc">Cosmin's context, goals, background</div></div>
+        <div class="card"><div class="card-title">PRINCIPLES.md</div><div class="card-desc">10 core principles (Mental Clarity, ROI Gate, 1% Better, etc.)</div></div>
+        <div class="card"><div class="card-title">SYSTEM-MAP.md</div><div class="card-desc">Routing logic, pattern matching</div></div>
+        <div class="card"><div class="card-title">THIS-WEEK.md</div><div class="card-desc">Active goals (3-5 max, weekly focus)</div></div>
+        <div class="card"><div class="card-title">MEMORY.md</div><div class="card-desc">Long-term curated memory (main session only)</div></div>
+        <div class="card"><div class="card-title">TOOLS.md</div><div class="card-desc">MCP schema reference, behavior rules, targets</div></div>
+        <div class="card"><div class="card-title">IDENTITY.md</div><div class="card-desc">Varutzu — name, avatar 🦞</div></div>
+        <div class="card"><div class="card-title">HEARTBEAT.md</div><div class="card-desc">Periodic maintenance tasks</div></div>
+        <div class="card"><div class="card-title">BACKLOG.md</div><div class="card-desc">Smart task hub (prioritized 🔴🟡🟢⚪)</div></div>
+        <div class="card"><div class="card-title">VISION.md</div><div class="card-desc">Product vision — multi-agent architecture, 4-tier strategy</div></div>
+        <div class="card"><div class="card-title">ROADMAP.md</div><div class="card-desc">Week-by-week execution plan (checkpoint 1 Mai 2026)</div></div>
+    </div>
+
+    <!-- ═══ MODULES ═══ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">⚡</span> Modules (Execution Layer)</div>
+        <div class="section-desc">Click to expand — tables, columns, MCP tools</div>
+
+        <!-- HEALTH -->
+        <div class="module health" onclick="this.classList.toggle('open')">
+            <div class="module-header">
+                <div class="module-header-left">
+                    <span class="mod-icon">💊</span>
+                    <div>
+                        <div class="mod-name">Health</div>
+                        <div class="mod-meta">health/health.db · health/mcp_server.py</div>
+                    </div>
+                </div>
+                <span class="chevron">▼</span>
+            </div>
+            <div class="module-body"><div class="module-body-inner">
+                <div class="sub-label">Tables (6)</div>
+
+                <div class="table-card">
+                    <div class="tc-name">health_metrics</div>
+                    <div class="tc-rows">83 rows</div>
+                    <div class="tc-cols">id, date, sleep_score, rhr, hrv, weight_kg, body_fat_pct, visceral_fat, notes, created_at, updated_at, protein_g, carbs_g, fat_g, calories, water_pct, steps, sleep_hours</div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-name">nutrition</div>
+                    <div class="tc-rows">166 rows</div>
+                    <div class="tc-cols">id, date, time, item, protein_g, carbs_g, fat_g, calories, fiber_g, sugar_g, notes, created_at, water_ml, sat_fat_g, unsat_fat_g</div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-name">workouts</div>
+                    <div class="tc-rows">6 rows</div>
+                    <div class="tc-cols">id, date, type, duration_min, distance_km, pace_min_km, heart_rate_avg, calories, notes, created_at, hr_zone1_min, hr_zone2_min, hr_zone3_min, hr_zone4_min, hr_zone5_min, max_hr</div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-name">blood_work</div>
+                    <div class="tc-rows">29 rows</div>
+                    <div class="tc-cols">id, date, test_name, test_code, value, unit, ref_low, ref_high, status, category, notes, created_at</div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-name">nutrition_db</div>
+                    <div class="tc-rows">117 rows</div>
+                    <div class="tc-cols">id, name, name_ro, category, subcategory, serving_g, calories, protein_g, carbs_g, fat_g, sat_fat_g, unsat_fat_g, fiber_g, sugar_g, omega3_mg, sodium_mg, potassium_mg, magnesium_mg, calcium_mg, iron_mg, zinc_mg, vitamin_c_mg, vitamin_d_iu, vitamin_b12_mcg, water_content_pct, glycemic_index, quality_score, tags, use_case, notes, created_at, collagen_g</div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-name">targets</div>
+                    <div class="tc-rows">18 rows</div>
+                    <div class="tc-cols">id, metric, target_value, target_type, target_high, unit, frequency, category, notes, created_at, updated_at</div>
+                </div>
+
+                <div class="sub-label">MCP Tools (17)</div>
+                <div class="tools-grid">
+                    <span class="tool-tag">log_health</span>
+                    <span class="tool-tag">get_day</span>
+                    <span class="tool-tag">recent</span>
+                    <span class="tool-tag">averages</span>
+                    <span class="tool-tag">trend</span>
+                    <span class="tool-tag">weekly_report</span>
+                    <span class="tool-tag">log_nutrition</span>
+                    <span class="tool-tag">daily_nutrition</span>
+                    <span class="tool-tag">nutrition_weekly</span>
+                    <span class="tool-tag">log_workout</span>
+                    <span class="tool-tag">recent_workouts</span>
+                    <span class="tool-tag">workout_summary</span>
+                    <span class="tool-tag">lookup_food</span>
+                    <span class="tool-tag">list_foods</span>
+                    <span class="tool-tag">suggest_food</span>
+                    <span class="tool-tag">add_food</span>
+                </div>
+            </div></div>
+        </div>
+
+        <!-- FINANCE -->
+        <div class="module finance" onclick="this.classList.toggle('open')">
+            <div class="module-header">
+                <div class="module-header-left">
+                    <span class="mod-icon">💰</span>
+                    <div>
+                        <div class="mod-name">Finance</div>
+                        <div class="mod-meta">finance/spending.db · finance/mcp_server.py</div>
+                    </div>
+                </div>
+                <span class="chevron">▼</span>
+            </div>
+            <div class="module-body"><div class="module-body-inner">
+                <div class="sub-label">Tables (2)</div>
+
+                <div class="table-card">
+                    <div class="tc-name">transactions</div>
+                    <div class="tc-rows">70 rows</div>
+                    <div class="tc-cols">id, date, description, amount, category, raw_text, created_at, roi_flag, quantity, unit_price, need_type, behavior_tag</div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-name">investments</div>
+                    <div class="tc-rows">1 row</div>
+                    <div class="tc-cols">id, asset, ticker, quantity, cost_basis_usd, notes, created_at, updated_at</div>
+                </div>
+
+                <div class="sub-label">MCP Tools (7)</div>
+                <div class="tools-grid">
+                    <span class="tool-tag">log_expense</span>
+                    <span class="tool-tag">today</span>
+                    <span class="tool-tag">day_summary</span>
+                    <span class="tool-tag">week_summary</span>
+                    <span class="tool-tag">month_summary</span>
+                    <span class="tool-tag">budget_check</span>
+                    <span class="tool-tag">category_trend</span>
+                </div>
+
+                <div class="sub-label">Config</div>
+                <div class="config-row"><span class="cl">Income</span><span class="cr">7,000 lei/lună</span></div>
+                <div class="config-row"><span class="cl">Fixed costs</span><span class="cr">4,495 lei</span></div>
+                <div class="config-row"><span class="cl">Available</span><span class="cr">2,505 lei</span></div>
+                <div class="config-row"><span class="cl">Vice budget</span><span class="cr">≤125 lei/lună</span></div>
+                <div class="config-row"><span class="cl">Credite</span><span class="cr">6× · ~82k lei · 2,184/lună</span></div>
+                <div class="config-row"><span class="cl">Vice prices</span><span class="cr">Bere 5 lei · Țigări 28 lei</span></div>
+            </div></div>
+        </div>
+
+        <!-- PSYCHOLOGY -->
+        <div class="module psychology" onclick="this.classList.toggle('open')">
+            <div class="module-header">
+                <div class="module-header-left">
+                    <span class="mod-icon">🧠</span>
+                    <div>
+                        <div class="mod-name">Psychology</div>
+                        <div class="mod-meta">psychology/psychology.db · psychology/mcp_server.py</div>
+                    </div>
+                </div>
+                <span class="chevron">▼</span>
+            </div>
+            <div class="module-body"><div class="module-body-inner">
+                <div class="sub-label">Tables (5)</div>
+
+                <div class="table-card">
+                    <div class="tc-name">journal_entries</div>
+                    <div class="tc-rows">13 rows</div>
+                    <div class="tc-cols">id, date, mood, energy, raw_text, tags, created_at</div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-name">journal_insights</div>
+                    <div class="tc-rows">9 rows</div>
+                    <div class="tc-cols">id, date_generated, insight_type, content, source_dates, created_at</div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-name">trigger_log</div>
+                    <div class="tc-rows">2 rows</div>
+                    <div class="tc-cols">id, date, time, trigger_type, situation, body_response, right_side_intensity, freeze_occurred, dominant_thought, action_taken, notes, created_at</div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-name">reconsolidation_sessions</div>
+                    <div class="tc-rows">1 row</div>
+                    <div class="tc-cols">id, session_number, date, target_memory, core_belief_activation, right_shoulder, right_palm, right_foot, verbal_freeze, dominant_thought, mismatch_used, physical_change, emotional_change, belief_update, homework, escalation_flag, notes, created_at</div>
+                </div>
+                <div class="table-card">
+                    <div class="tc-name">homework_log</div>
+                    <div class="tc-rows">0 rows</div>
+                    <div class="tc-cols">id, session_number, date, exercise, completed, observation, body_response, notes, created_at</div>
+                </div>
+
+                <div class="sub-label">MCP Tools (11)</div>
+                <div class="tools-grid">
+                    <span class="tool-tag">log_session</span>
+                    <span class="tool-tag">log_trigger</span>
+                    <span class="tool-tag">log_homework</span>
+                    <span class="tool-tag">sessions_history</span>
+                    <span class="tool-tag">trigger_history</span>
+                    <span class="tool-tag">signature_trend</span>
+                    <span class="tool-tag">log_journal</span>
+                    <span class="tool-tag">log_insight</span>
+                    <span class="tool-tag">journal_history</span>
+                    <span class="tool-tag">journal_insights</span>
+                    <span class="tool-tag">analysis</span>
+                </div>
+
+                <div class="sub-label">Profile</div>
+                <div class="config-row"><span class="cl">Core belief</span><span class="cr" style="font-family:Inter;font-size:0.78rem">"Nevoile mele nu sunt suficient de importante ca să fie văzute"</span></div>
+                <div class="config-row"><span class="cl">Physical signature</span><span class="cr">Right side (shoulder, palm, foot) 0-10</span></div>
+                <div class="config-row"><span class="cl">Origin map</span><span class="cr">Father → School → Ex → Work</span></div>
+                <div class="config-row"><span class="cl">Protocol</span><span class="cr">1/week · activate → mismatch → integrate</span></div>
+            </div></div>
+        </div>
+
+        <!-- CALENDAR -->
+        <div class="module calendar" onclick="this.classList.toggle('open')">
+            <div class="module-header">
+                <div class="module-header-left">
+                    <span class="mod-icon">📅</span>
+                    <div>
+                        <div class="mod-name">Calendar</div>
+                        <div class="mod-meta">calendar/calendar.db · calendar/mcp_server.py</div>
+                    </div>
+                </div>
+                <span class="chevron">▼</span>
+            </div>
+            <div class="module-body"><div class="module-body-inner">
+                <div class="sub-label">Tables (1)</div>
+
+                <div class="table-card">
+                    <div class="tc-name">events</div>
+                    <div class="tc-rows">92 rows</div>
+                    <div class="tc-cols">id, title, date, type, cost, currency, location, notes, recurring, recurring_pattern, created_at, energy_tag, time_tag</div>
+                </div>
+
+                <div class="sub-label">MCP Tools (5)</div>
+                <div class="tools-grid">
+                    <span class="tool-tag">add_event</span>
+                    <span class="tool-tag">list_events</span>
+                    <span class="tool-tag">financial_summary</span>
+                    <span class="tool-tag">delete_event</span>
+                    <span class="tool-tag">update_event</span>
+                </div>
+            </div></div>
+        </div>
+    </div>
+
+        <!-- TASKS -->
+        <div class="module tasks" onclick="this.classList.toggle('open')">
+            <div class="module-header">
+                <div class="module-header-left">
+                    <span class="mod-icon">📋</span>
+                    <div>
+                        <div class="mod-name" style="color: #a78bfa;">Tasks</div>
+                        <div class="mod-meta">tasks/tasks.db · tasks/mcp_server.py</div>
+                    </div>
+                </div>
+                <span class="chevron">▼</span>
+            </div>
+            <div class="module-body"><div class="module-body-inner">
+                <div class="sub-label">Tables (1)</div>
+
+                <div class="table-card" style="border-left-color: #a78bfa;">
+                    <div class="tc-name" style="color: #a78bfa;">tasks</div>
+                    <div class="tc-rows">1 row</div>
+                    <div class="tc-cols">id, title, status (todo/doing/done), priority (low/medium/high), category, due_date, notes, created_at, completed_at</div>
+                </div>
+
+                <div class="sub-label">MCP Tools (7)</div>
+                <div class="tools-grid">
+                    <span class="tool-tag" style="background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.2);color:#a78bfa;">add_task</span>
+                    <span class="tool-tag" style="background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.2);color:#a78bfa;">list_tasks</span>
+                    <span class="tool-tag" style="background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.2);color:#a78bfa;">update_task</span>
+                    <span class="tool-tag" style="background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.2);color:#a78bfa;">complete_task</span>
+                    <span class="tool-tag" style="background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.2);color:#a78bfa;">delete_task</span>
+                    <span class="tool-tag" style="background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.2);color:#a78bfa;">get_task</span>
+                    <span class="tool-tag" style="background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.2);color:#a78bfa;">tasks_summary</span>
+                </div>
+
+                <div class="sub-label">Config</div>
+                <div class="config-row"><span class="cl">Priority</span><span class="cr">🔴 high | 🟡 medium | ⚫ low</span></div>
+                <div class="config-row"><span class="cl">Status</span><span class="cr">⬜ todo | 🔄 doing | ✅ done</span></div>
+                <div class="config-row"><span class="cl">Categories</span><span class="cr">work, personal, health, finance, system, learning</span></div>
+            </div></div>
+        </div>
+    </div>
+
+    <!-- ═══ ROUTING ═══ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">🔀</span> Routing (Pattern Matching)</div>
+        <div class="section-desc">Input → module(s) based on keywords</div>
+
+        <table class="route-table">
+            <tr><th>Input</th><th>→ Modules</th></tr>
+            <tr><td>"mâncat salată"</td><td>Health (nutrition)</td></tr>
+            <tr><td>"burger la McD, 35 lei"</td><td>Health → Finance</td></tr>
+            <tr><td>"4 beri"</td><td>Health → Finance → Psychology</td></tr>
+            <tr><td>"pachet țigări"</td><td>Health → Finance → Psychology</td></tr>
+            <tr><td>"plătit 50 lei"</td><td>Finance</td></tr>
+            <tr><td>"nuntă 27 iunie 1500 lei"</td><td>Calendar → Finance</td></tr>
+            <tr><td>"m-am blocat la muncă"</td><td>Psychology (trigger)</td></tr>
+            <tr><td>"alergat 7km"</td><td>Health (workout)</td></tr>
+            <tr><td>"sleep 72, HRV 38"</td><td>Health (metrics)</td></tr>
+            <tr><td>"3L apă"</td><td>Health (nutrition → water_ml)</td></tr>
+        </table>
+    </div>
+
+    <!-- ═══ CRON JOBS ═══ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">⏰</span> Cron Jobs (Automation Layer)</div>
+        <div class="section-desc">20 active recurring + 7 one-shot reminders</div>
+
+        <div class="timeline">
+            <div class="tl-group-label">Daily</div>
+
+            <div class="tl-item">
+                <div class="tl-time">01:00</div>
+                <div class="tl-desc">DB Backup — tar.gz all DBs + memory → ~/backups (keep 7)</div>
+                <div class="tl-target">isolated · silent</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-time">07:30</div>
+                <div class="tl-desc">Morning Brief — yesterday KPIs (loading bars) + calendar + challenge + streaks</div>
+                <div class="tl-target">isolated → announce</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-time">08:00 + 23:30</div>
+                <div class="tl-desc">LifeOS Data Export — export script (2×/day)</div>
+                <div class="tl-target">isolated · silent</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-time">14:00</div>
+                <div class="tl-desc">Nutrition Check-in — remind if &lt;2 meals logged</div>
+                <div class="tl-target">main</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-time">20:00</div>
+                <div class="tl-desc">Resilience Practice — 10 min session reminder</div>
+                <div class="tl-target">main</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-time">20:00</div>
+                <div class="tl-desc">Nutrition Check-in (Evening) — dinner + cigarette count</div>
+                <div class="tl-target">main</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-time">21:00</div>
+                <div class="tl-desc">Daily Nutrition Analysis — macros + fat/carb quality + recovery foods + micros + prescription</div>
+                <div class="tl-target">isolated → announce</div>
+            </div>
+            <div class="tl-item">
+                <div class="tl-time">21:00</div>
+                <div class="tl-desc">Daily Journal — KPIs first → reflection → psychology.db</div>
+                <div class="tl-target">main</div>
+            </div>
+
+            <div class="tl-group-label">Weekly</div>
+
+            <div class="tl-item weekly">
+                <div class="tl-time">Mar / Joi / Sâm 10:30</div>
+                <div class="tl-desc">Nutrition Suggestion — gap-based meal/snack idea</div>
+                <div class="tl-target">isolated → announce</div>
+            </div>
+            <div class="tl-item weekly">
+                <div class="tl-time">Vineri 19:00</div>
+                <div class="tl-desc">Weekly Prep — nutrition loading bars + consulting + psych review</div>
+                <div class="tl-target">isolated → announce</div>
+            </div>
+            <div class="tl-item weekly">
+                <div class="tl-time">Duminică 19:00</div>
+                <div class="tl-desc">Weekly Report — health + finance + vice + shopping list</div>
+                <div class="tl-target">isolated → announce</div>
+            </div>
+            <div class="tl-item weekly">
+                <div class="tl-time">Miercuri 20:00</div>
+                <div class="tl-desc">Architecture Sprint — system inventory + health check</div>
+                <div class="tl-target">main</div>
+            </div>
+            <div class="tl-item weekly">
+                <div class="tl-time">Luni 07:00</div>
+                <div class="tl-desc">OpenClaw Update — check + auto-apply</div>
+                <div class="tl-target">isolated → announce</div>
+            </div>
+
+            <div class="tl-group-label">Monthly</div>
+
+            <div class="tl-item monthly">
+                <div class="tl-time">26th 19:00</div>
+                <div class="tl-desc">Monthly Financial Preview — closing + next month forecast</div>
+                <div class="tl-target">isolated → announce</div>
+            </div>
+
+            <div class="tl-group-label">One-Shot Reminders</div>
+
+            <div class="tl-item oneshot">
+                <div class="tl-time">30 Mar 07:00</div>
+                <div class="tl-desc">Sună ING pentru refinanțare</div>
+            </div>
+            <div class="tl-item oneshot">
+                <div class="tl-time">30 Mar 10:30</div>
+                <div class="tl-desc">Garmin Sync Retry (24h post rate limit)</div>
+            </div>
+            <div class="tl-item oneshot">
+                <div class="tl-time">1 Apr</div>
+                <div class="tl-desc">Taxe bloc 700 lei + April Budget Kickoff</div>
+            </div>
+            <div class="tl-item oneshot">
+                <div class="tl-time">3 Apr</div>
+                <div class="tl-desc">Post-Cooldown Review — nutrition expert system + burnout check</div>
+            </div>
+            <div class="tl-item oneshot">
+                <div class="tl-time">24 Jun / 15 Jul</div>
+                <div class="tl-desc">Nunți — Pastor (1500 lei) + Mokanu (1500 lei)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ OTHER DOCS ═══ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">📚</span> Other Docs</div>
+        <div class="card"><div class="card-title">ALCOHOL-RECOVERY-NUTRITION.md</div><div class="card-desc">Recovery-first nutrition protocol (liver, brain, gut, joints)</div></div>
+        <div class="card"><div class="card-title">NUTRITION-REPORT-DESIGN.md</div><div class="card-desc">Weekly report design spec</div></div>
+        <div class="card"><div class="card-title">MEAL-PROTOCOL.md</div><div class="card-desc">Meal planning rules</div></div>
+        <div class="card"><div class="card-title">HYDRATION-FRUITS-GUIDE.md</div><div class="card-desc">Hydration reference</div></div>
+        <div class="card"><div class="card-title">shopping-list.md</div><div class="card-desc">Active shopping list</div></div>
+        <div class="card"><div class="card-title">memory/quotes.md</div><div class="card-desc">Vice deterrent quotes</div></div>
+        <div class="card"><div class="card-title">memory/improvement-ideas.md</div><div class="card-desc">System improvement log</div></div>
+    </div>
+
+    <!-- ═══ DIRECTORIES ═══ -->
+    <div class="section">
+        <div class="section-title"><span class="icon">📁</span> Directories</div>
+        <div class="dir-grid">
+            <div class="dir-item"><div class="dir-name">health/</div><div class="dir-desc">DB, MCP, Garmin sync</div></div>
+            <div class="dir-item"><div class="dir-name">finance/</div><div class="dir-desc">DB, MCP, budget docs</div></div>
+            <div class="dir-item"><div class="dir-name">calendar/</div><div class="dir-desc">DB, MCP, Node.js server</div></div>
+            <div class="dir-item"><div class="dir-name">psychology/</div><div class="dir-desc">DB, MCP, reconsolidation</div></div>
+            <div class="dir-item"><div class="dir-name">tasks/</div><div class="dir-desc">DB, MCP server</div></div>
+            <div class="dir-item"><div class="dir-name">memory/</div><div class="dir-desc">Daily notes, quotes, recipes</div></div>
+            <div class="dir-item"><div class="dir-name">public/</div><div class="dir-desc">Visual mockups, dashboard</div></div>
+            <div class="dir-item"><div class="dir-name">skills/</div><div class="dir-desc">13 custom skills</div></div>
+            <div class="dir-item"><div class="dir-name">templates/</div><div class="dir-desc">Onboarding guides</div></div>
+            <div class="dir-item"><div class="dir-name">scripts/</div><div class="dir-desc">Automation scripts</div></div>
+            <div class="dir-item"><div class="dir-name">exports/</div><div class="dir-desc">Data export outputs</div></div>
+            <div class="dir-item"><div class="dir-name">freelance/</div><div class="dir-desc">Power BI freelance</div></div>
+            <div class="dir-item"><div class="dir-name">avatars/</div><div class="dir-desc">Varutzu avatar 🦞</div></div>
+        </div>
+    </div>
+
+    <div style="text-align:center; color:var(--text2); font-size:0.72rem; padding: 20px 0; opacity:0.5;">
+        LifeOS v4.0 · Verified 2 Apr 2026 · 🦞
+    </div>
+
+</div>
+</body>
+</html>
